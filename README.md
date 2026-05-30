@@ -1,4 +1,4 @@
-# 🎯 Sakthi LMS — NEET 2027 Tracking App
+# Sakthi LMS — NEET 2027 Tracking App
 
 Welcome to **Sakthi LMS**, a high-density, custom-built learning tracker designed specifically for tracking study milestones and chapter strengths for the **NEET 2027** exam. 
 
@@ -6,23 +6,23 @@ This application features an OLED-optimized dark aesthetic tailored for intense 
 
 ---
 
-## ✨ Features & Architecture
+## Features & Architecture
 
-### 1. 📊 Segmented Progress Ring (`RingMeter`)
+### 1. Segmented Progress Ring (`RingMeter`)
 - **Precise Math**: Renders an Apple Watch-style continuous segmented circular ring in an SVG viewBox (`0 0 100 100`, radius `38`, stroke-width `9`).
 - **Dynamic Angles**: Offsets each category (`Weak`, `Medium`, `Strong`) chronologically using sequential negative `strokeDashoffset` shifts starting from 12 o'clock, with smooth ambient drop shadows.
 - **Real-Time Distribution**: Visually isolates outstanding chapters (grey/empty) from in-progress/completed segments.
 
-### 2. ⏳ NEET 2027 Countdown Widget (`NeetCountdown`)
+### 2. NEET 2027 Countdown Widget (`NeetCountdown`)
 - **Live Tracking**: Displays remaining Days, Hours, Minutes, and Seconds until **May 2, 2027, at 2:00 PM IST** (the traditional NEET exam slot).
 - **Premium Design**: Styled with a glowing top-border linear gradient transitioning from warm coral-red through sunset amber to icy blue, featuring a pulsating colon separator (`animate-pulse`).
 
-### 3. 💬 Dynamic Quote Widget (`HeroQuote`)
+### 3. Dynamic Quote Widget (`HeroQuote`)
 - **Dual Retrieval**: Fetches inspiring quotes on-demand from a public CORS-enabled API (`https://dummyjson.com/quotes/random`).
 - **Offline Resiliency**: Seamlessly falls back to a curated local array of premium NEET/student motivation quotes if offline or rate-limited.
 - **Micro-Interactions**: Features shimmering skeleton loaders (`animate-pulse`) and custom spin animations (`animate-spin`) during active retrieval.
 
-### 4. 🗂️ High-Density Milestone Grid
+### 4. High-Density Milestone Grid
 - **Interactive State Cycling**: Cell clicks seamlessly cycle status types with responsive local state updates.
   - **Progress Categories (`notes`, `exercise`, `level1`, `level2`, `mb`)**: `Yet to begin` ➔ `In Progress` ➔ `Done` ➔ `Yet to begin`
   - **Subject Strength (`status`)**: `Weak` ➔ `Medium` ➔ `Strong` ➔ `Weak`
@@ -30,7 +30,7 @@ This application features an OLED-optimized dark aesthetic tailored for intense 
 
 ---
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 - **Framework**: [TanStack Start](https://tanstack.com/router/latest/docs/start/overview) (Server-side rendering, routing, and isomorphic data boundaries).
 - **Core Library**: [React 19](https://react.dev/) (Modern hook utilities and state management).
@@ -42,7 +42,7 @@ This application features an OLED-optimized dark aesthetic tailored for intense 
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```bash
 sakthi-lms/
@@ -76,7 +76,7 @@ sakthi-lms/
 
 ---
 
-## 🚀 Commands & Development Scripts
+## Commands & Development Scripts
 
 Ensure you run these inside the root directory using `pnpm` (which maps to the existing `pnpm-lock.yaml` file):
 
@@ -107,7 +107,7 @@ pnpm db:studio     # Launch Drizzle Studio DB explorer
 
 ---
 
-## 🛡️ Pre-Commit Safeguards
+## Pre-Commit Safeguards
 
 A **Husky** pre-commit hook is active. It runs before every git commit to ensure that only fully functional, clean, and building code enters the repository:
 
@@ -120,6 +120,6 @@ pnpm check && pnpm build
 
 ---
 
-## 📖 Learn More
+## Learn More
 
 To expand or build on this LMS, review the developer documentation files in `/docs`.
