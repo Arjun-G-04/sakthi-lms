@@ -42,9 +42,6 @@ To keep this guide concise, specialized sections are split into independent docu
 Always run these scripts inside the root workspace folder to verify code safety and styling sanity:
 
 ```bash
-# Start local development server (port 3000)
-pnpm dev
-
 # Check TypeScript type safety (pre-flight checks)
 npx tsc --noEmit
 

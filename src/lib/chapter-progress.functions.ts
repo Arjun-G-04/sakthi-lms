@@ -24,8 +24,8 @@ const chapterSeeds: NewChapterProgressRow[] = CHAPTER_GROUPS.flatMap((group) =>
 	})),
 );
 
-function seedChapterRows() {
-	db.insert(chapterProgress).values(chapterSeeds).onConflictDoNothing().run();
+async function seedChapterRows() {
+	await db.insert(chapterProgress).values(chapterSeeds).onConflictDoNothing();
 }
 
 function progressState(value: string | null | undefined): ProgressState {
@@ -66,9 +66,9 @@ export type ChapterUpdateInput = {
 
 export const loadChapterBoard = createServerFn({ method: "GET" }).handler(
 	async () => {
-		seedChapterRows();
+		await seedChapterRows();
 
-		const rows = db.select().from(chapterProgress).all();
+		const rows = await db.select().from(chapterProgress).all();
 		const rowMap = new Map(rows.map((row) => [row.chapterKey, row]));
 
 		return CHAPTER_GROUPS.map((group) => ({
@@ -144,7 +144,7 @@ export const updateChapterProgress = createServerFn({ method: "POST" })
 		};
 	})
 	.handler(async ({ data }) => {
-		seedChapterRows();
+		await seedChapterRows();
 
 		const patch: Partial<typeof chapterProgress.$inferInsert> = {
 			updatedAt: Math.floor(Date.now() / 1000),
@@ -156,10 +156,10 @@ export const updateChapterProgress = createServerFn({ method: "POST" })
 			patch[data.field] = data.value as ProgressState;
 		}
 
-		db.update(chapterProgress)
+		await db
+			.update(chapterProgress)
 			.set(patch)
-			.where(eq(chapterProgress.chapterKey, data.chapterKey))
-			.run();
+			.where(eq(chapterProgress.chapterKey, data.chapterKey));
 
 		return { ok: true as const };
 	});
