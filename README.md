@@ -1,227 +1,125 @@
-Welcome to your new TanStack Start app! 
+# 🎯 Sakthi LMS — NEET 2027 Tracking App
 
-# Getting Started
+Welcome to **Sakthi LMS**, a high-density, custom-built learning tracker designed specifically for tracking study milestones and chapter strengths for the **NEET 2027** exam. 
 
-To run this application:
+This application features an OLED-optimized dark aesthetic tailored for intense focus sessions, interactive progress boards, and live widgets.
 
-```bash
-npm install
-npm run dev
-```
+---
 
-# Building For Production
+## ✨ Features & Architecture
 
-To build this application for production:
+### 1. 📊 Segmented Progress Ring (`RingMeter`)
+- **Precise Math**: Renders an Apple Watch-style continuous segmented circular ring in an SVG viewBox (`0 0 100 100`, radius `38`, stroke-width `9`).
+- **Dynamic Angles**: Offsets each category (`Weak`, `Medium`, `Strong`) chronologically using sequential negative `strokeDashoffset` shifts starting from 12 o'clock, with smooth ambient drop shadows.
+- **Real-Time Distribution**: Visually isolates outstanding chapters (grey/empty) from in-progress/completed segments.
 
-```bash
-npm run build
-```
+### 2. ⏳ NEET 2027 Countdown Widget (`NeetCountdown`)
+- **Live Tracking**: Displays remaining Days, Hours, Minutes, and Seconds until **May 2, 2027, at 2:00 PM IST** (the traditional NEET exam slot).
+- **Premium Design**: Styled with a glowing top-border linear gradient transitioning from warm coral-red through sunset amber to icy blue, featuring a pulsating colon separator (`animate-pulse`).
 
-## Testing
+### 3. 💬 Dynamic Quote Widget (`HeroQuote`)
+- **Dual Retrieval**: Fetches inspiring quotes on-demand from a public CORS-enabled API (`https://dummyjson.com/quotes/random`).
+- **Offline Resiliency**: Seamlessly falls back to a curated local array of premium NEET/student motivation quotes if offline or rate-limited.
+- **Micro-Interactions**: Features shimmering skeleton loaders (`animate-pulse`) and custom spin animations (`animate-spin`) during active retrieval.
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+### 4. 🗂️ High-Density Milestone Grid
+- **Interactive State Cycling**: Cell clicks seamlessly cycle status types with responsive local state updates.
+  - **Progress Categories (`notes`, `exercise`, `level1`, `level2`, `mb`)**: `Yet to begin` ➔ `In Progress` ➔ `Done` ➔ `Yet to begin`
+  - **Subject Strength (`status`)**: `Weak` ➔ `Medium` ➔ `Strong` ➔ `Weak`
+- **Symmetrical Design**: Organized in a robust, multi-lane grid with vertical alignment balancing and text-overflow protection.
 
-```bash
-npm run test
-```
+---
 
-## Styling
+## 🛠️ Technical Stack
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+- **Framework**: [TanStack Start](https://tanstack.com/router/latest/docs/start/overview) (Server-side rendering, routing, and isomorphic data boundaries).
+- **Core Library**: [React 19](https://react.dev/) (Modern hook utilities and state management).
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) with custom vanilla CSS utilities.
+- **Database**: [SQLite](https://sqlite.org/) (WAL mode enabled local file-based database).
+- **ORM**: [Drizzle ORM](https://orm.drizzle.team/) (Type-safe SQL queries and schema modelling).
+- **Development Tooling**: [Biome](https://biomejs.dev/) (Sub-millisecond formatting, linting, and import organization).
+- **Git Hooks**: [Husky](https://typicode.github.io/husky/) (Pre-commit hook enforcement).
 
-### Removing Tailwind CSS
+---
 
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `npm install @tailwindcss/vite tailwindcss -D`
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-npm run lint
-npm run format
-npm run check
-```
-
-
-## Deploy with Nitro
-
-This project uses Nitro as a generic server adapter, so it can run on any Node-compatible host.
+## 📂 Project Structure
 
 ```bash
-npm run build
-node dist/server/index.mjs
+sakthi-lms/
+├── .agents/             # Agent tools and skill configurations
+├── .husky/              # Git hooks (pre-commit quality controls)
+├── docs/                # Comprehensive architecture and standards docs
+│   ├── architecture.md       # High-level architecture and data flow
+│   ├── chapter-tracking.md   # Schema modeling and state transitions
+│   ├── ui-components.md      # SVG math, styling, and widgets
+│   ├── tanstack-start.md     # SSR, env safety, and Server Functions
+│   └── review-standards.md   # Standard audit procedures and guidelines
+├── src/
+│   ├── db/
+│   │   └── schema.ts         # SQLite/Drizzle schema models
+│   ├── lib/
+│   │   ├── chapter-catalog.ts# Static subject catalog and state maps
+│   │   ├── chapter-progress.ts# DB operations and Server Functions
+│   │   └── db.ts             # SQLite connection instance (better-sqlite3)
+│   ├── routes/
+│   │   ├── __root.tsx        # HTML wrapper layout and providers
+│   │   └── index.tsx         # Dashboard landing page & main UI grid
+│   ├── entry-client.tsx      # Hydration entry
+│   ├── entry-server.tsx      # SSR entry
+│   ├── routeTree.gen.ts      # Auto-generated route tree
+│   └── styles.css            # Root stylesheet & design system tokens
+├── biome.json           # Biome linter/formatter config
+├── drizzle.config.ts    # Drizzle migrations configuration
+├── package.json         # Project scripts and dependencies
+└── tsconfig.json        # TypeScript configuration
 ```
 
-The build output is a self-contained Node server. To deploy, push the `dist/` directory to your host (Render, Fly.io, your own VPS, etc.) and run the server command above.
+---
 
-For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see https://v3.nitro.build/deploy.
+## 🚀 Commands & Development Scripts
 
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+Ensure you run these inside the root directory using `pnpm` (which maps to the existing `pnpm-lock.yaml` file):
 
 ```bash
-pnpm dlx shadcn@latest add button
+# 1. Start local development server (port 3000)
+pnpm dev
+
+# 2. Verify full production build compilation
+pnpm build
+
+# 3. Preview production build locally
+pnpm preview
+
+# 4. Lint and check formatting with Biome
+pnpm check
+
+# 5. Fix Biome linting and formatting violations automatically
+npx biome check --write
+
+# 6. Check TypeScript type-safety
+npx tsc --noEmit
+
+# 7. Database Migrations
+pnpm db:generate   # Generate schema migration files
+pnpm db:push       # Push schema changes to SQLite dev database
+pnpm db:studio     # Launch Drizzle Studio DB explorer
 ```
 
+---
 
+## 🛡️ Pre-Commit Safeguards
 
-## Routing
+A **Husky** pre-commit hook is active. It runs before every git commit to ensure that only fully functional, clean, and building code enters the repository:
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
+```bash
+pnpm check && pnpm build
 ```
 
-Then anywhere in your JSX you can use it like so:
+- **Step 1 (Linting/Formatting)**: Performs a non-interactive `biome check` to guarantee standard styling, import ordering, and lack of code smells.
+- **Step 2 (Compilation/SSR safety)**: Compiles the full application using `vite build` (client-side, server-side, and Nitro server compilation stages). If there are any hydration mismatches, TS errors, or broken imports, the commit will abort.
 
-```tsx
-<Link to="/about">About</Link>
-```
+---
 
-This will create a link that will navigate to the `/about` route.
+## 📖 Learn More
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+To expand or build on this LMS, review the developer documentation files in `/docs`.
