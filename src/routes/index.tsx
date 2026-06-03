@@ -53,10 +53,13 @@ function Home() {
 	useEffect(() => {
 		setBoard(initialBoard);
 		setTests(initialTests);
+	}, [initialBoard, initialTests]);
+
+	useEffect(() => {
 		if (!selectedSectionKey && initialBoard[0]) {
 			setSelectedSectionKey(sectionKey(initialBoard[0]));
 		}
-	}, [initialBoard, initialTests, selectedSectionKey]);
+	}, [initialBoard, selectedSectionKey]);
 
 	const stats = useMemo(() => getStats(board), [board]);
 
