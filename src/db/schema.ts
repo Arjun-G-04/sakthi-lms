@@ -19,3 +19,18 @@ export const chapterProgress = sqliteTable("chapter_progress", {
 
 export type ChapterProgressRow = typeof chapterProgress.$inferSelect;
 export type NewChapterProgressRow = typeof chapterProgress.$inferInsert;
+
+export const testPerformances = sqliteTable("test_performances", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	testDate: text("test_date").notNull(),
+	testName: text("test_name").notNull(),
+	chaptersCovered: text("chapters_covered").notNull(), // JSON string array of chapter titles or keys
+	durationMinutes: integer("duration_minutes").notNull(),
+	totalMarks: integer("total_marks").notNull(),
+	scoredMarks: integer("scored_marks").notNull(),
+	testType: text("test_type").notNull(),
+	createdAt: integer("created_at").notNull().default(sql`(unixepoch())`),
+});
+
+export type TestPerformanceRow = typeof testPerformances.$inferSelect;
+export type NewTestPerformanceRow = typeof testPerformances.$inferInsert;

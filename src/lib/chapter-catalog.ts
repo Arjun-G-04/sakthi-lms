@@ -10,7 +10,7 @@ export type ChapterField =
 	| "status";
 
 export type ChapterGroup = {
-	subject: "Physics" | "Chemistry" | "Biology";
+	subject: "Physics" | "Chemistry" | "Biology" | "Maths";
 	grade: "11" | "12";
 	accent: string;
 	chapters: readonly string[];
@@ -147,6 +147,47 @@ export const CHAPTER_GROUPS: readonly ChapterGroup[] = [
 			"Organisms and Populations",
 			"Ecosystem",
 			"Biodiversity and Conservation",
+		],
+	},
+	{
+		subject: "Maths",
+		grade: "11",
+		accent: "#c675ff",
+		chapters: [
+			"Sets",
+			"Relations and Functions",
+			"Trigonometric Functions",
+			"Complex Numbers and Quadratic Equations",
+			"Linear Inequalities",
+			"Permutations and Combinations",
+			"Binomial Theorem",
+			"Sequences and Series",
+			"Straight Lines",
+			"Conic Sections",
+			"Introduction to Three Dimensional Geometry",
+			"Limits and Derivatives",
+			"Statistics",
+			"Probability",
+		],
+	},
+	{
+		subject: "Maths",
+		grade: "12",
+		accent: "#a544d0",
+		chapters: [
+			"Relations and Functions",
+			"Inverse Trigonometric Functions",
+			"Matrices",
+			"Determinants",
+			"Continuity and Differentiability",
+			"Application of Derivatives",
+			"Integrals",
+			"Application of Integrals",
+			"Differential Equations",
+			"Vector Algebra",
+			"Three Dimensional Geometry",
+			"Linear Programming",
+			"Probability",
 		],
 	},
 ] as const;

@@ -8,6 +8,13 @@
       "when": 1780158569613,
       "tag": "0000_furry_iceman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1780504466762,
+      "tag": "0001_first_iron_fist",
+      "breakpoints": true
     }
   ]
 }

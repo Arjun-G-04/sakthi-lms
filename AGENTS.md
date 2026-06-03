@@ -65,4 +65,6 @@ pnpm build
 - **Server Function Validation**: Always implement explicit, safe parameter validation inside the `.inputValidator` definition of `createServerFn` to sanitize all client RPC payloads before processing.
 - **Environment Variable Isolation**: Keep confidential credentials secure by keeping them prefix-less (`process.env.SECRET`) and accessing them exclusively on the server. Never prefix sensitive database configs with `VITE_`.
 - **Hydration Boundary Safety**: Guard against browser-only APIs (like `window` or `localStorage`) during initial render. Restrict dynamic dates or random utilities to `useEffect` or static formats to prevent hydration mismatches.
+- **File Length Limits**: Ensure no file in the codebase exceeds 500 lines in length to maintain modularity, readability, and ease of auditing.
 - **Automated Codebase Auditing**: When a codebase review or audit is requested, strictly execute the four-phase standard defined in [docs/review-standards.md](file:///Users/arjun/Documents/Code/sakthi-lms/docs/review-standards.md), combining TanStack Start logic/security, Vercel React Best Practices, high-density caveman-review feedback, and immediate refactoring remediation.
+

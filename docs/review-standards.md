@@ -12,6 +12,8 @@ Audit all routing, API endpoints, server-side modules, and database structures a
 - **Input Security**: Verify that every `createServerFn` enforces explicit `.inputValidator` checks and rejects type or structure anomalies.
 - **Credential Isolation**: Confirm no sensitive environment variables (e.g. `DATABASE_URL`) have a `VITE_` prefix, preventing browser visibility.
 - **SSR & Hydration Integrity**: Audit components for dangerous browser API uses (like raw `window` or local storage access during initial render) that could trigger hydration mismatches.
+- **File Length Modularity**: Verify that no source file exceeds 500 lines. Flag any files exceeding this limit for immediate refactoring into smaller, modular sub-files.
+
 
 ---
 
