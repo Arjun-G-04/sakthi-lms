@@ -15,6 +15,8 @@ type TestRegistryModalProps = {
 	submittingTest: boolean;
 	onSubmit: (e: React.FormEvent) => Promise<void>;
 	existingTypes: string[];
+	/** When set, the modal is in edit mode for this test ID */
+	editingId?: number | null;
 };
 
 export function TestRegistryModal({
@@ -25,6 +27,7 @@ export function TestRegistryModal({
 	submittingTest,
 	onSubmit,
 	existingTypes,
+	editingId,
 }: TestRegistryModalProps) {
 	const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false);
 	const [newCategoryInput, setNewCategoryInput] = useState("");
@@ -35,8 +38,19 @@ export function TestRegistryModal({
 		setMounted(true);
 	}, []);
 
+	// Reset category create UI when modal closes
+	useEffect(() => {
+		if (!showAddForm) {
+			setIsCreatingNewCategory(false);
+			setNewCategoryInput("");
+			setShowExistingTypeSelect(false);
+		}
+	}, [showAddForm]);
+
 	if (!showAddForm) return null;
 	if (!mounted) return null;
+
+	const isEditMode = editingId != null;
 
 	const livePercent =
 		newTest.totalMarks > 0
@@ -76,12 +90,26 @@ export function TestRegistryModal({
 			<article className="relative rise-in overflow-hidden rounded-[28px] border-2 border-[#1a2840]/12 bg-[#fdfaf4] shadow-[0_8px_16px_rgba(26,40,64,0.12),0_32px_64px_rgba(26,40,64,0.18)] w-full max-w-5xl max-h-[90vh] flex flex-col">
 				{/* Double brass rule */}
 				<div className="h-px w-full bg-[#1a2840]/10" />
-				<div className="h-[3px] w-full bg-gradient-to-r from-transparent via-[#b8872a]/60 to-transparent" />
+				<div
+					className="h-[3px] w-full bg-gradient-to-r from-transparent to-transparent"
+					style={{
+						backgroundImage: isEditMode
+							? "linear-gradient(to right, transparent, rgba(59,130,246,0.6), transparent)"
+							: "linear-gradient(to right, transparent, rgba(184,135,42,0.6), transparent)",
+					}}
+				/>
 				<div className="h-px w-full bg-[#1a2840]/10" />
 				<header className="flex items-center justify-between border-b border-[#1a2840]/8 px-6 py-4 bg-[#f5eedc]/60">
-					<h3 className="display-title text-lg font-bold text-[#1a2840] leading-none">
-						Test Outcome Registry
-					</h3>
+					<div className="flex items-center gap-3">
+						<h3 className="display-title text-lg font-bold text-[#1a2840] leading-none">
+							{isEditMode ? "Edit Test Outcome" : "Test Outcome Registry"}
+						</h3>
+						{isEditMode && (
+							<span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-blue-600">
+								Editing
+							</span>
+						)}
+					</div>
 					<button
 						type="button"
 						onClick={() => setShowAddForm(false)}
@@ -348,20 +376,6 @@ export function TestRegistryModal({
 									</span>
 								</div>
 							</div>
-							<p className="text-[10px] text-[#1a2840]/65 leading-relaxed max-w-[200px] mx-auto">
-								Curated tier:{" "}
-								<span
-									className={`font-black uppercase tracking-widest ${liveColor.text}`}
-								>
-									{livePercent >= 90
-										? "Jade"
-										: livePercent >= 80
-											? "Amber"
-											: livePercent >= 70
-												? "Burnt"
-												: "Ruby"}
-								</span>
-							</p>
 						</div>
 
 						{/* SUBMIT ACTIONS */}
@@ -378,7 +392,13 @@ export function TestRegistryModal({
 								disabled={submittingTest || isCreatingNewCategory}
 								className="flex-2 rounded-xl bg-[#1a2840] py-2.5 text-xs font-black uppercase tracking-widest text-[#fdfaf4] hover:bg-[#1a2840]/85 disabled:opacity-30 transition duration-200"
 							>
-								{submittingTest ? "Saving..." : "Log Outcome"}
+								{submittingTest
+									? isEditMode
+										? "Saving..."
+										: "Saving..."
+									: isEditMode
+										? "Save Changes"
+										: "Log Outcome"}
 							</button>
 						</div>
 					</div>

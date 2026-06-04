@@ -299,7 +299,7 @@ function Home() {
 						onChange={commitChange}
 					/>
 				) : (
-					<TestDashboard initialTests={tests} />
+					<TestDashboard tests={tests} setTests={setTests} />
 				)}
 			</div>
 		</main>

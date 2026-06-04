@@ -56,33 +56,33 @@ export function getCategoryColor(type: string) {
 export function getScoreColor(percent: number) {
 	if (percent >= 90) {
 		return {
-			text: "text-[#34d399]", // Jade Green
-			bg: "bg-[#064e3b]/55",
-			border: "border-[#059669]/30",
+			text: "text-[#d1fae5]", // Light jade on dark bg
+			bg: "bg-[#065f46]",
+			border: "border-[#059669]/50",
 			color: "#059669",
 		};
 	}
 	if (percent >= 80) {
 		return {
-			text: "text-[#fbbf24]", // Honey Amber
-			bg: "bg-[#78350f]/55",
-			border: "border-[#b45309]/30",
+			text: "text-[#fef3c7]", // Light amber on dark bg
+			bg: "bg-[#92400e]",
+			border: "border-[#b45309]/50",
 			color: "#b45309",
 		};
 	}
 	if (percent >= 70) {
 		return {
-			text: "text-[#f97316]", // Burnt Copper / Bronze
-			bg: "bg-[#7c2d12]/55",
-			border: "border-[#9a3412]/30",
-			color: "#9a3412",
+			text: "text-[#ffedd5]", // Light orange on dark bg
+			bg: "bg-[#9a3412]",
+			border: "border-[#c2410c]/50",
+			color: "#c2410c",
 		};
 	}
 	return {
-		text: "text-[#f43f5e]", // Ruby Crimson
-		bg: "bg-[#4c0519]/55",
-		border: "border-[#881337]/30",
-		color: "#881337",
+		text: "text-[#ffe4e6]", // Light rose on dark bg
+		bg: "bg-[#9f1239]",
+		border: "border-[#be123c]/50",
+		color: "#be123c",
 	};
 }
 

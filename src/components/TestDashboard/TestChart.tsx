@@ -1,5 +1,6 @@
-import { Award, Calendar, TrendingUp } from "lucide-react";
+import { Award, TrendingUp } from "lucide-react";
 import { useCallback, useMemo } from "react";
+import { ChartTooltip } from "#/components/TestDashboard/ChartTooltip";
 import {
 	CHART_HEIGHT,
 	CHART_PADDING_BOTTOM,
@@ -11,8 +12,11 @@ import {
 	CHART_WIDTH,
 	type ChartPoint,
 	getCategoryColor,
-	getScoreColor,
 } from "#/components/TestDashboard/utils";
+
+const GOAL_Y =
+	CHART_PADDING_TOP + CHART_PLOT_HEIGHT - (90 / 100) * CHART_PLOT_HEIGHT;
+const ZONE_WIDTH = CHART_WIDTH - CHART_PADDING_LEFT - CHART_PADDING_RIGHT;
 
 type TestChartProps = {
 	parsedPoints: ChartPoint[];
@@ -37,6 +41,9 @@ export function TestChart({
 	setHiddenTypes,
 	existingTypes,
 }: TestChartProps) {
+	const minTime = timeBounds.min;
+	const maxTime = timeBounds.max;
+
 	const getCoords = useCallback(
 		(timestamp: number, percent: number) => {
 			const y =
@@ -44,15 +51,14 @@ export function TestChart({
 				CHART_PLOT_HEIGHT -
 				(percent / 100) * CHART_PLOT_HEIGHT;
 			let x = CHART_PADDING_LEFT + CHART_PLOT_WIDTH / 2;
-			if (timeBounds.max > timeBounds.min) {
+			if (maxTime > minTime) {
 				x =
 					CHART_PADDING_LEFT +
-					((timestamp - timeBounds.min) / (timeBounds.max - timeBounds.min)) *
-						CHART_PLOT_WIDTH;
+					((timestamp - minTime) / (maxTime - minTime)) * CHART_PLOT_WIDTH;
 			}
 			return { x, y };
 		},
-		[timeBounds],
+		[minTime, maxTime],
 	);
 
 	const singleLineD = useMemo(() => {
@@ -186,6 +192,22 @@ export function TestChart({
 									<stop offset="0%" stopColor="#b8872a" stopOpacity="0.20" />
 									<stop offset="100%" stopColor="#b8872a" stopOpacity="0" />
 								</linearGradient>
+								{/*
+								  goalFillGradient: vertical, y1=1 (bottom=90% line, dark)
+								  → y2=0 (top=100%, lighter)
+								*/}
+								<linearGradient
+									id="goalFillGradient"
+									x1="0"
+									y1="1"
+									x2="0"
+									y2="0"
+								>
+									{/* 90% line edge: deep emerald, more opaque */}
+									<stop offset="0%" stopColor="#065f46" stopOpacity="0.28" />
+									{/* 100% top: light mint, barely visible */}
+									<stop offset="100%" stopColor="#6ee7b7" stopOpacity="0.08" />
+								</linearGradient>
 								<filter
 									id="neonGlow"
 									x="-20%"
@@ -241,6 +263,40 @@ export function TestChart({
 								y2={CHART_HEIGHT - CHART_PADDING_BOTTOM}
 								stroke="rgba(26, 40, 64, 0.15)"
 							/>
+
+							{/* 90% Goal zone: dark-to-light green fill + solid cutoff line */}
+							<g>
+								{/* Gradient fill: 90% (dark) → 100% (light) */}
+								<rect
+									x={CHART_PADDING_LEFT}
+									y={CHART_PADDING_TOP}
+									width={ZONE_WIDTH}
+									height={GOAL_Y - CHART_PADDING_TOP}
+									fill="url(#goalFillGradient)"
+								/>
+								{/* Solid green cutoff line at 90% */}
+								<line
+									x1={CHART_PADDING_LEFT}
+									y1={GOAL_Y}
+									x2={CHART_WIDTH - CHART_PADDING_RIGHT}
+									y2={GOAL_Y}
+									stroke="#10b981"
+									strokeWidth="1.5"
+									strokeOpacity="0.7"
+								/>
+								{/* Label */}
+								<text
+									x={CHART_PADDING_LEFT - 10}
+									y={GOAL_Y + 4}
+									textAnchor="end"
+									fill="#10b981"
+									fontSize="10"
+									fontWeight="bold"
+									opacity="0.85"
+								>
+									90%
+								</text>
+							</g>
 
 							{/* Chart Paths */}
 							{chartMode === "single" ? (
@@ -414,75 +470,11 @@ export function TestChart({
 
 						{/* Tooltip Overlay */}
 						{hoveredPoint && (
-							<div
-								className="absolute z-10 p-3 rounded-xl border border-[#1a2840]/12 bg-[#fdfaf4]/98 shadow-xl text-left text-xs min-w-[200px] pointer-events-none"
-								style={{
-									left: `${Math.min(
-										Math.max(
-											getCoords(hoveredPoint.timestamp, hoveredPoint.percent)
-												.x - 100,
-											10,
-										),
-										CHART_PLOT_WIDTH - 140,
-									)}px`,
-									top: `${Math.max(
-										getCoords(hoveredPoint.timestamp, hoveredPoint.percent).y -
-											140,
-										10,
-									)}px`,
-									boxShadow: `0 8px 24px -4px ${
-										getScoreColor(hoveredPoint.percent).color
-									}22`,
-								}}
-							>
-								<div className="flex items-center justify-between border-b border-[#1a2840]/8 pb-1.5 mb-1.5">
-									<span className="text-[9px] font-black uppercase tracking-wider text-[#1a2840]/40 flex items-center gap-1">
-										<Calendar className="h-3 w-3" />
-										{hoveredPoint.testDate}
-									</span>
-									<span
-										className={`rounded-full border px-2 py-0.5 text-[8px] font-black uppercase tracking-wider ${
-											getScoreColor(hoveredPoint.percent).text
-										} ${getScoreColor(hoveredPoint.percent).bg} ${
-											getScoreColor(hoveredPoint.percent).border
-										}`}
-									>
-										{hoveredPoint.percent}%
-									</span>
-								</div>
-
-								<p className="font-semibold text-[#1a2840] truncate max-w-[180px]">
-									{hoveredPoint.testName}
-								</p>
-								<p className="text-[10px] font-bold text-[#b8872a]/80 mt-0.5">
-									{hoveredPoint.testType}
-								</p>
-
-								<div className="mt-2 space-y-1 text-[10px] text-[#1a2840]/55">
-									<p className="flex justify-between">
-										<span>Marks:</span>
-										<span className="font-bold text-[#1a2840]">
-											{hoveredPoint.scoredMarks} / {hoveredPoint.totalMarks}
-										</span>
-									</p>
-									<p className="flex justify-between">
-										<span>Duration:</span>
-										<span className="font-bold text-[#1a2840]">
-											{hoveredPoint.durationMinutes} mins
-										</span>
-									</p>
-									{hoveredPoint.chaptersCovered && (
-										<p className="border-t border-[#1a2840]/8 pt-1.5 mt-1.5 leading-relaxed">
-											<span className="block font-bold text-[#1a2840]/40 mb-0.5">
-												Chapters Covered:
-											</span>
-											<span className="text-[9px] text-[#1a2840]/60 block max-h-[40px] overflow-y-auto truncate-multiline">
-												{JSON.parse(hoveredPoint.chaptersCovered).join(", ")}
-											</span>
-										</p>
-									)}
-								</div>
-							</div>
+							<ChartTooltip
+								hoveredPoint={hoveredPoint}
+								x={getCoords(hoveredPoint.timestamp, hoveredPoint.percent).x}
+								y={getCoords(hoveredPoint.timestamp, hoveredPoint.percent).y}
+							/>
 						)}
 					</>
 				)}

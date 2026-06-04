@@ -1,5 +1,5 @@
 import { Filter, Plus, TrendingUp } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { TestChart } from "#/components/TestDashboard/TestChart";
 import { TestHistoryTable } from "#/components/TestDashboard/TestHistoryTable";
 import { TestRegistryModal } from "#/components/TestDashboard/TestRegistryModal";
@@ -13,34 +13,37 @@ import {
 	addTestPerformance,
 	deleteTestPerformance,
 	loadTestPerformances,
+	updateTestPerformance,
 } from "#/lib/test-performance.functions";
 
 type TestDashboardProps = {
-	initialTests: TestType[];
+	tests: TestType[];
+	setTests: React.Dispatch<React.SetStateAction<TestType[]>>;
 };
 
-export function TestDashboard({ initialTests }: TestDashboardProps) {
-	const [tests, setTests] = useState<TestType[]>(initialTests);
+const BLANK_TEST: FormTestState = {
+	testDate: "",
+	testName: "",
+	durationMinutes: 180,
+	totalMarks: 720,
+	scoredMarks: 0,
+	testType: "",
+	chaptersCovered: [] as string[],
+};
+
+export function TestDashboard({ tests, setTests }: TestDashboardProps) {
 	const [showAddForm, setShowAddForm] = useState(false);
 	const [submittingTest, setSubmittingTest] = useState(false);
 	const [newTest, setNewTest] = useState<FormTestState>({
+		...BLANK_TEST,
 		testDate: new Date().toISOString().split("T")[0],
-		testName: "",
-		durationMinutes: 180,
-		totalMarks: 720,
-		scoredMarks: 0,
-		testType: "",
-		chaptersCovered: [] as string[],
 	});
+	const [editingId, setEditingId] = useState<number | null>(null);
 
 	const [hiddenTypes, setHiddenTypes] = useState<Record<string, boolean>>({});
 	const [chartMode, setChartMode] = useState<"single" | "multi">("single");
 	const [recentAvgFilter, setRecentAvgFilter] = useState<string>("All Types");
 	const [hoveredPoint, setHoveredPoint] = useState<ChartPoint | null>(null);
-
-	useEffect(() => {
-		setTests(initialTests);
-	}, [initialTests]);
 
 	const existingTypes = useMemo(() => {
 		const types = new Set<string>(tests.map((t) => t.testType));
@@ -95,6 +98,32 @@ export function TestDashboard({ initialTests }: TestDashboardProps) {
 		return { min: Math.min(...times), max: Math.max(...times) };
 	}, [parsedPoints]);
 
+	function openAddModal() {
+		setEditingId(null);
+		setNewTest({
+			...BLANK_TEST,
+			testDate: new Date().toISOString().split("T")[0],
+		});
+		setShowAddForm(true);
+	}
+
+	function openEditModal(test: TestType) {
+		const chapters = test.chaptersCovered
+			? (JSON.parse(test.chaptersCovered) as string[])
+			: [];
+		setEditingId(test.id);
+		setNewTest({
+			testDate: test.testDate,
+			testName: test.testName,
+			durationMinutes: test.durationMinutes,
+			totalMarks: test.totalMarks,
+			scoredMarks: test.scoredMarks,
+			testType: test.testType,
+			chaptersCovered: chapters,
+		});
+		setShowAddForm(true);
+	}
+
 	async function handleAddTest(e: React.FormEvent) {
 		e.preventDefault();
 		if (!newTest.testName.trim() || !newTest.testType.trim()) {
@@ -126,21 +155,57 @@ export function TestDashboard({ initialTests }: TestDashboardProps) {
 
 			const updated = await loadTestPerformances();
 			setTests(updated);
-
-			setNewTest({
-				testDate: new Date().toISOString().split("T")[0],
-				testName: "",
-				durationMinutes: 180,
-				totalMarks: 720,
-				scoredMarks: 0,
-				testType: "",
-				chaptersCovered: [],
-			});
 			setShowAddForm(false);
 		} catch (error) {
 			console.error("Failed to add test", error);
 			alert(
 				"Error adding test: " +
+					(error instanceof Error ? error.message : String(error)),
+			);
+		} finally {
+			setSubmittingTest(false);
+		}
+	}
+
+	async function handleUpdateTest(e: React.FormEvent) {
+		e.preventDefault();
+		if (editingId == null) return;
+		if (!newTest.testName.trim() || !newTest.testType.trim()) {
+			alert("Please enter test name and test type!");
+			return;
+		}
+		if (
+			newTest.totalMarks <= 0 ||
+			newTest.scoredMarks < 0 ||
+			newTest.scoredMarks > newTest.totalMarks
+		) {
+			alert("Please enter valid marks values!");
+			return;
+		}
+
+		setSubmittingTest(true);
+		try {
+			await updateTestPerformance({
+				data: {
+					id: editingId,
+					testDate: newTest.testDate,
+					testName: newTest.testName.trim(),
+					chaptersCovered: newTest.chaptersCovered,
+					durationMinutes: Number(newTest.durationMinutes),
+					totalMarks: Number(newTest.totalMarks),
+					scoredMarks: Number(newTest.scoredMarks),
+					testType: newTest.testType.trim(),
+				},
+			});
+
+			const updated = await loadTestPerformances();
+			setTests(updated);
+			setShowAddForm(false);
+			setEditingId(null);
+		} catch (error) {
+			console.error("Failed to update test", error);
+			alert(
+				"Error updating test: " +
 					(error instanceof Error ? error.message : String(error)),
 			);
 		} finally {
@@ -181,7 +246,7 @@ export function TestDashboard({ initialTests }: TestDashboardProps) {
 				</div>
 				<button
 					type="button"
-					onClick={() => setShowAddForm(!showAddForm)}
+					onClick={openAddModal}
 					className="flex items-center gap-2 rounded-[16px] border border-[#1a2840]/15 bg-[#1a2840] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-[#fdfaf4] hover:bg-[#1a2840]/85 transition duration-200 shadow-[0_2px_8px_rgba(26,40,64,0.2)]"
 				>
 					<Plus className="h-4 w-4" />
@@ -191,12 +256,16 @@ export function TestDashboard({ initialTests }: TestDashboardProps) {
 
 			<TestRegistryModal
 				showAddForm={showAddForm}
-				setShowAddForm={setShowAddForm}
+				setShowAddForm={(open) => {
+					setShowAddForm(open);
+					if (!open) setEditingId(null);
+				}}
 				newTest={newTest}
 				setNewTest={setNewTest}
 				submittingTest={submittingTest}
-				onSubmit={handleAddTest}
+				onSubmit={editingId != null ? handleUpdateTest : handleAddTest}
 				existingTypes={existingTypes}
+				editingId={editingId}
 			/>
 
 			{/* Main chart + sidebar grid */}
@@ -248,13 +317,13 @@ export function TestDashboard({ initialTests }: TestDashboardProps) {
 								<div className="py-6 text-center space-y-4">
 									<div className="flex items-center justify-center">
 										<div
-											className="grid h-36 w-36 place-items-center rounded-full border-2 border-[#1a2840]/10 bg-[#fdfaf4] shadow-[inset_0_0_0_1px_rgba(26,40,64,0.05),0_8px_24px_rgba(26,40,64,0.1)]"
+											className={`grid h-36 w-36 place-items-center rounded-full border-2 transition-all duration-300 ${getScoreColor(recentAvg.percent).border} ${getScoreColor(recentAvg.percent).bg}`}
 											style={{
-												boxShadow: `0 0 28px ${getScoreColor(recentAvg.percent).color}18`,
+												boxShadow: `0 0 32px ${getScoreColor(recentAvg.percent).color}30`,
 											}}
 										>
 											<div className="flex flex-col items-center">
-												<span className="text-[10px] font-bold text-[#1a2840]/50 uppercase tracking-widest leading-none">
+												<span className="text-[10px] font-bold uppercase tracking-widest leading-none text-white/50">
 													Last {recentAvg.count}
 												</span>
 												<span
@@ -264,7 +333,7 @@ export function TestDashboard({ initialTests }: TestDashboardProps) {
 												>
 													{recentAvg.percent}%
 												</span>
-												<span className="text-[8px] font-black text-[#b8872a]/70 uppercase tracking-widest mt-2 leading-none">
+												<span className="text-[8px] font-black uppercase tracking-widest mt-2 leading-none text-white/40">
 													Average
 												</span>
 											</div>
@@ -295,7 +364,11 @@ export function TestDashboard({ initialTests }: TestDashboardProps) {
 				</aside>
 			</div>
 
-			<TestHistoryTable tests={tests} onDelete={handleDeleteTest} />
+			<TestHistoryTable
+				tests={tests}
+				onDelete={handleDeleteTest}
+				onEdit={openEditModal}
+			/>
 		</section>
 	);
 }

@@ -89,7 +89,7 @@ export const addTestPerformance = createServerFn({ method: "POST" })
 
 		return {
 			testDate,
-			testName,
+			testName: testName.trim(),
 			chaptersCovered,
 			durationMinutes: dur,
 			totalMarks: total,
@@ -121,5 +121,91 @@ export const deleteTestPerformance = createServerFn({ method: "POST" })
 	})
 	.handler(async ({ data: id }) => {
 		await db.delete(testPerformances).where(eq(testPerformances.id, id));
+		return { ok: true as const };
+	});
+
+export type UpdateTestPerformanceInput = TestPerformanceInput & { id: number };
+
+export const updateTestPerformance = createServerFn({ method: "POST" })
+	.inputValidator((input: unknown): UpdateTestPerformanceInput => {
+		if (typeof input !== "object" || input === null) {
+			throw new Error("Invalid payload: must be an object");
+		}
+
+		const {
+			id,
+			testDate,
+			testName,
+			chaptersCovered,
+			durationMinutes,
+			totalMarks,
+			scoredMarks,
+			testType,
+		} = input as Record<string, unknown>;
+
+		if (typeof id !== "number" || !Number.isInteger(id)) {
+			throw new Error("Invalid id: must be an integer");
+		}
+		if (typeof testDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
+			throw new Error("Invalid testDate: must be in YYYY-MM-DD format");
+		}
+		if (typeof testName !== "string" || testName.trim() === "") {
+			throw new Error("Invalid testName: must be a non-empty string");
+		}
+		if (!Array.isArray(chaptersCovered)) {
+			throw new Error("Invalid chaptersCovered: must be an array of strings");
+		}
+		for (const ch of chaptersCovered) {
+			if (typeof ch !== "string") {
+				throw new Error("Invalid chapter item: must be a string");
+			}
+		}
+		const dur = Number(durationMinutes);
+		if (Number.isNaN(dur) || dur <= 0 || !Number.isInteger(dur)) {
+			throw new Error("Invalid durationMinutes: must be a positive integer");
+		}
+		const total = Number(totalMarks);
+		if (Number.isNaN(total) || total <= 0 || !Number.isInteger(total)) {
+			throw new Error("Invalid totalMarks: must be a positive integer");
+		}
+		const scored = Number(scoredMarks);
+		if (
+			Number.isNaN(scored) ||
+			scored < 0 ||
+			!Number.isInteger(scored) ||
+			scored > total
+		) {
+			throw new Error(
+				"Invalid scoredMarks: must be an integer between 0 and totalMarks",
+			);
+		}
+		if (typeof testType !== "string" || testType.trim() === "") {
+			throw new Error("Invalid testType: must be a non-empty string");
+		}
+
+		return {
+			id,
+			testDate,
+			testName: testName.trim(),
+			chaptersCovered,
+			durationMinutes: dur,
+			totalMarks: total,
+			scoredMarks: scored,
+			testType: testType.trim(),
+		};
+	})
+	.handler(async ({ data }) => {
+		await db
+			.update(testPerformances)
+			.set({
+				testDate: data.testDate,
+				testName: data.testName,
+				chaptersCovered: JSON.stringify(data.chaptersCovered),
+				durationMinutes: data.durationMinutes,
+				totalMarks: data.totalMarks,
+				scoredMarks: data.scoredMarks,
+				testType: data.testType,
+			})
+			.where(eq(testPerformances.id, data.id));
 		return { ok: true as const };
 	});

@@ -1,4 +1,4 @@
-import { BookOpen, Trash2 } from "lucide-react";
+import { BookOpen, Pencil, Trash2 } from "lucide-react";
 import {
 	getCategoryColor,
 	getScoreColor,
@@ -8,9 +8,14 @@ import {
 type TestHistoryTableProps = {
 	tests: TestType[];
 	onDelete: (id: number) => Promise<void>;
+	onEdit: (test: TestType) => void;
 };
 
-export function TestHistoryTable({ tests, onDelete }: TestHistoryTableProps) {
+export function TestHistoryTable({
+	tests,
+	onDelete,
+	onEdit,
+}: TestHistoryTableProps) {
 	return (
 		<article className="rise-in overflow-hidden rounded-[28px] border-2 border-[#1a2840]/10 bg-[#fdfaf4]/90 shadow-[0_4px_6px_rgba(26,40,64,0.05),0_12px_32px_rgba(26,40,64,0.08),inset_0_1px_0_rgba(255,255,255,0.95)]">
 			{/* Brass top accent */}
@@ -47,9 +52,9 @@ export function TestHistoryTable({ tests, onDelete }: TestHistoryTableProps) {
 							</p>
 						</div>
 					) : (
-						<div className="min-w-[1140px]">
+						<div className="min-w-[1180px]">
 							{/* Table header */}
-							<div className="grid grid-cols-[100px_180px_120px_90px_3.5fr_110px_110px_60px] gap-2 px-3 text-[10px] font-bold uppercase tracking-[0.28em] text-[#1a2840]/55 pb-2.5">
+							<div className="grid grid-cols-[100px_180px_120px_90px_3.5fr_110px_110px_90px] gap-2 px-3 text-[10px] font-bold uppercase tracking-[0.28em] text-[#1a2840]/55 pb-2.5">
 								<div>Taken Date</div>
 								<div>Test Name</div>
 								<div>Category</div>
@@ -57,7 +62,7 @@ export function TestHistoryTable({ tests, onDelete }: TestHistoryTableProps) {
 								<div className="pl-4">Chapters Covered</div>
 								<div className="text-center">Raw Score</div>
 								<div className="text-center">Percentage</div>
-								<div className="text-right pr-2">Action</div>
+								<div className="text-right pr-2">Actions</div>
 							</div>
 
 							{/* Rows */}
@@ -74,7 +79,7 @@ export function TestHistoryTable({ tests, onDelete }: TestHistoryTableProps) {
 									return (
 										<div
 											key={t.id}
-											className="grid grid-cols-[100px_180px_120px_90px_3.5fr_110px_110px_60px] gap-2 items-center rounded-[16px] border border-[#1a2840]/10 bg-[#fdfaf4] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] hover:border-[#1a2840]/18 hover:bg-[#fdfaf4] hover:shadow-[0_2px_8px_rgba(26,40,64,0.06)] transition-all duration-200"
+											className="grid grid-cols-[100px_180px_120px_90px_3.5fr_110px_110px_90px] gap-2 items-center rounded-[16px] border border-[#1a2840]/10 bg-[#fdfaf4] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] hover:border-[#1a2840]/18 hover:bg-[#fdfaf4] hover:shadow-[0_2px_8px_rgba(26,40,64,0.06)] transition-all duration-200"
 										>
 											<div className="text-xs font-semibold text-[#1a2840]/75">
 												{t.testDate}
@@ -125,7 +130,15 @@ export function TestHistoryTable({ tests, onDelete }: TestHistoryTableProps) {
 													{percent}%
 												</span>
 											</div>
-											<div className="flex justify-end pr-2">
+											<div className="flex items-center justify-end gap-1 pr-1">
+												<button
+													type="button"
+													onClick={() => onEdit(t)}
+													className="rounded-lg p-1.5 text-[#1a2840]/30 hover:bg-[#b8872a]/10 hover:text-[#b8872a] transition duration-200"
+													aria-label="Edit Test Entry"
+												>
+													<Pencil className="h-4 w-4" />
+												</button>
 												<button
 													type="button"
 													onClick={() => onDelete(t.id)}
