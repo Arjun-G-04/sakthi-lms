@@ -87,7 +87,7 @@ export function TestRegistryModal({
 			/>
 
 			{/* Modal Shell */}
-			<article className="relative rise-in overflow-hidden rounded-[28px] border-2 border-[#1a2840]/12 bg-[#fdfaf4] shadow-[0_8px_16px_rgba(26,40,64,0.12),0_32px_64px_rgba(26,40,64,0.18)] w-full max-w-5xl max-h-[90vh] flex flex-col">
+			<article className="relative overflow-hidden rounded-[28px] border-2 border-[#1a2840]/12 bg-[#fdfaf4] shadow-[0_8px_16px_rgba(26,40,64,0.12),0_32px_64px_rgba(26,40,64,0.18)] w-full max-w-5xl max-h-[90vh] flex flex-col">
 				{/* Double brass rule */}
 				<div className="h-px w-full bg-[#1a2840]/10" />
 				<div

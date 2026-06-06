@@ -74,5 +74,7 @@ pnpm build
 - **File Length Limits**: Ensure no file in the codebase exceeds 500 lines in length to maintain modularity, readability, and ease of auditing.
 - **Automated Codebase Auditing**: When a codebase review or audit is requested, strictly execute the four-phase standard defined in [docs/review-standards.md](file:///Users/arjun/Documents/Code/sakthi-lms/docs/review-standards.md), combining TanStack Start logic/security, Vercel React Best Practices, high-density caveman-review feedback, and immediate refactoring remediation.
 - **Mock Test CBT Rules**: Always design CBT mock simulators (e.g. Waves, Gravitation) to run as mouse-only active sessions (no keyboard shortcut listeners enabled). Data banks containing exactly 60 questions must be split into two files (`part1.ts` and `part2.ts`) to stay under the 500-line limit. Always clamp results to `Math.max(0, scoredMarks)` to prevent negative value database violations, and log the maximum allowed duration (e.g., 60 minutes) instead of actual utilized/elapsed time.
+- **Load/Fade-in Animations**: Unless explicitly asked by the user, do not include load-in, fade-in, rise-in, or slide-in animations on page or component initialization.
+
 
 

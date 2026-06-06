@@ -34,3 +34,15 @@ export const testPerformances = sqliteTable("test_performances", {
 
 export type TestPerformanceRow = typeof testPerformances.$inferSelect;
 export type NewTestPerformanceRow = typeof testPerformances.$inferInsert;
+
+export const todos = sqliteTable("todos", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	content: text("content").notNull(),
+	completed: integer("completed", { mode: "boolean" }).notNull().default(false),
+	weekStartDate: text("week_start_date").notNull(), // 'YYYY-MM-DD' representing Sunday of that week
+	chapterKey: text("chapter_key"), // optional, links to a chapter
+	createdAt: integer("created_at").notNull().default(sql`(unixepoch())`),
+});
+
+export type TodoRow = typeof todos.$inferSelect;
+export type NewTodoRow = typeof todos.$inferInsert;

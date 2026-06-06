@@ -17,7 +17,7 @@ export function TestHistoryTable({
 	onEdit,
 }: TestHistoryTableProps) {
 	return (
-		<article className="rise-in overflow-hidden rounded-[28px] border-2 border-[#1a2840]/10 bg-[#fdfaf4]/90 shadow-[0_4px_6px_rgba(26,40,64,0.05),0_12px_32px_rgba(26,40,64,0.08),inset_0_1px_0_rgba(255,255,255,0.95)]">
+		<article className="overflow-hidden rounded-[28px] border-2 border-[#1a2840]/10 bg-[#fdfaf4]/90 shadow-[0_4px_6px_rgba(26,40,64,0.05),0_12px_32px_rgba(26,40,64,0.08),inset_0_1px_0_rgba(255,255,255,0.95)]">
 			{/* Brass top accent */}
 			<div className="h-px w-full bg-[#1a2840]/10" />
 			<div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#b8872a]/50 to-transparent" />

@@ -17,6 +17,7 @@ import { MetricCard } from "#/components/MetricCard";
 import { NeetCountdown } from "#/components/NeetCountdown";
 import { TestDashboard } from "#/components/TestDashboard/TestDashboard";
 import type { TestType } from "#/components/TestDashboard/utils";
+import { WeeklyTodo } from "#/components/WeeklyTodo/WeeklyTodo";
 import type {
 	ChapterField,
 	ProgressState,
@@ -48,7 +49,9 @@ function Home() {
 	const [selectedSectionKey, setSelectedSectionKey] = useState(
 		sectionKey(initialBoard[0]),
 	);
-	const [activeTab, setActiveTab] = useState<"tracker" | "tests">("tracker");
+	const [activeTab, setActiveTab] = useState<"tracker" | "tests" | "todos">(
+		"tracker",
+	);
 
 	useEffect(() => {
 		setBoard(initialBoard);
@@ -127,7 +130,7 @@ function Home() {
 
 			<div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1680px] flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
 				{/* ── HERO SECTION ─────────────────────────────────────────── */}
-				<section className="rise-in overflow-hidden rounded-[28px] border-2 border-[#1a2840]/12 bg-[#fdfaf4]/90 shadow-[0_4px_6px_rgba(26,40,64,0.06),0_16px_40px_rgba(26,40,64,0.08),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-sm">
+				<section className="overflow-hidden rounded-[28px] border-2 border-[#1a2840]/12 bg-[#fdfaf4]/90 shadow-[0_4px_6px_rgba(26,40,64,0.06),0_16px_40px_rgba(26,40,64,0.08),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-sm">
 					{/* Double-rule top border — classic school ledger feel */}
 					<div className="h-px w-full bg-[#1a2840]/10" />
 					<div className="h-[3px] w-full bg-gradient-to-r from-transparent via-[#b8872a]/60 to-transparent" />
@@ -288,9 +291,20 @@ function Home() {
 					>
 						Test Performance
 					</button>
+					<button
+						type="button"
+						onClick={() => setActiveTab("todos")}
+						className={`rounded-[12px] px-6 py-2.5 text-xs font-bold uppercase tracking-[0.24em] transition-all duration-300 ${
+							activeTab === "todos"
+								? "bg-[#1a2840] text-[#fdfaf4] shadow-[0_2px_8px_rgba(26,40,64,0.25)]"
+								: "text-[#1a2840]/50 hover:text-[#1a2840]"
+						}`}
+					>
+						Weekly Planner
+					</button>
 				</div>
 
-				{activeTab === "tracker" ? (
+				{activeTab === "tracker" && (
 					<ChapterTracker
 						board={board}
 						selectedSectionKey={selectedSectionKey}
@@ -298,9 +312,11 @@ function Home() {
 						savingKey={savingKey}
 						onChange={commitChange}
 					/>
-				) : (
+				)}
+				{activeTab === "tests" && (
 					<TestDashboard tests={tests} setTests={setTests} />
 				)}
+				{activeTab === "todos" && <WeeklyTodo />}
 			</div>
 		</main>
 	);
