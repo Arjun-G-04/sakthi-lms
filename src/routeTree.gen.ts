@@ -9,8 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RtOscillations1Route = RtOscillations1RouteImport.update({
+  id: '/rt-oscillations-1',
+  path: '/rt-oscillations-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +25,39 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/rt-oscillations-1': typeof RtOscillations1Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/rt-oscillations-1': typeof RtOscillations1Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/rt-oscillations-1': typeof RtOscillations1Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/rt-oscillations-1'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/rt-oscillations-1'
+  id: '__root__' | '/' | '/rt-oscillations-1'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RtOscillations1Route: typeof RtOscillations1Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/rt-oscillations-1': {
+      id: '/rt-oscillations-1'
+      path: '/rt-oscillations-1'
+      fullPath: '/rt-oscillations-1'
+      preLoaderRoute: typeof RtOscillations1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RtOscillations1Route: RtOscillations1Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

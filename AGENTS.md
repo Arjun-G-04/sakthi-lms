@@ -27,6 +27,10 @@ To keep this guide concise, specialized sections are split into independent docu
    - Standards for logical, functional, and security audits.
    - Performance and optimization checking via Vercel React Best Practices.
    - High-density caveman-review feedback and auto-refactoring flow.
+6. **[Mock Test & CBT Simulator Guidelines](file:///Users/arjun/Documents/Code/sakthi-lms/docs/mock-test-guidelines.md)**
+   - Standards and file structure for generating 60-question mock assessments.
+   - LaTeX mathematical rendering and KaTeX integration rules.
+   - Session locking, timers, and database logging specs.
 
 ---
 
@@ -34,6 +38,8 @@ To keep this guide concise, specialized sections are split into independent docu
 
 ### 1. Key Working Files
 - **App Routes / Core UI**: [src/routes/index.tsx](file:///Users/arjun/Documents/Code/sakthi-lms/src/routes/index.tsx)
+- **CBT Route**: [src/routes/rt-oscillations-1.tsx](file:///Users/arjun/Documents/Code/sakthi-lms/src/routes/rt-oscillations-1.tsx)
+- **CBT Simulator**: [src/components/TcsIonSimulator/Simulator.tsx](file:///Users/arjun/Documents/Code/sakthi-lms/src/components/TcsIonSimulator/Simulator.tsx)
 - **DB Queries / Actions**: [src/lib/chapter-progress.ts](file:///Users/arjun/Documents/Code/sakthi-lms/src/lib/chapter-progress.ts)
 - **Static Schema Model**: [src/db/schema.ts](file:///Users/arjun/Documents/Code/sakthi-lms/src/db/schema.ts)
 - **Static Definitions**: [src/lib/chapter-catalog.ts](file:///Users/arjun/Documents/Code/sakthi-lms/src/lib/chapter-catalog.ts)
@@ -67,4 +73,6 @@ pnpm build
 - **Hydration Boundary Safety**: Guard against browser-only APIs (like `window` or `localStorage`) during initial render. Restrict dynamic dates or random utilities to `useEffect` or static formats to prevent hydration mismatches.
 - **File Length Limits**: Ensure no file in the codebase exceeds 500 lines in length to maintain modularity, readability, and ease of auditing.
 - **Automated Codebase Auditing**: When a codebase review or audit is requested, strictly execute the four-phase standard defined in [docs/review-standards.md](file:///Users/arjun/Documents/Code/sakthi-lms/docs/review-standards.md), combining TanStack Start logic/security, Vercel React Best Practices, high-density caveman-review feedback, and immediate refactoring remediation.
+- **Mock Test CBT Rules**: Always design CBT mock simulators (e.g. Waves, Gravitation) to run as mouse-only active sessions (no keyboard shortcut listeners enabled). Data banks containing exactly 60 questions must be split into two files (`part1.ts` and `part2.ts`) to stay under the 500-line limit. Always clamp results to `Math.max(0, scoredMarks)` to prevent negative value database violations, and log the maximum allowed duration (e.g., 60 minutes) instead of actual utilized/elapsed time.
+
 
