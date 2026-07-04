@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RtPBlock1RouteImport } from './routes/rt-p-block-1'
 import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RtPBlock1Route = RtPBlock1RouteImport.update({
+  id: '/rt-p-block-1',
+  path: '/rt-p-block-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RtOscillations1Route = RtOscillations1RouteImport.update({
   id: '/rt-oscillations-1',
   path: '/rt-oscillations-1',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/rt-oscillations-1': typeof RtOscillations1Route
+  '/rt-p-block-1': typeof RtPBlock1Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/rt-oscillations-1': typeof RtOscillations1Route
+  '/rt-p-block-1': typeof RtPBlock1Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/rt-oscillations-1': typeof RtOscillations1Route
+  '/rt-p-block-1': typeof RtPBlock1Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/rt-oscillations-1'
+  fullPaths: '/' | '/rt-oscillations-1' | '/rt-p-block-1'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/rt-oscillations-1'
-  id: '__root__' | '/' | '/rt-oscillations-1'
+  to: '/' | '/rt-oscillations-1' | '/rt-p-block-1'
+  id: '__root__' | '/' | '/rt-oscillations-1' | '/rt-p-block-1'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RtOscillations1Route: typeof RtOscillations1Route
+  RtPBlock1Route: typeof RtPBlock1Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/rt-p-block-1': {
+      id: '/rt-p-block-1'
+      path: '/rt-p-block-1'
+      fullPath: '/rt-p-block-1'
+      preLoaderRoute: typeof RtPBlock1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rt-oscillations-1': {
       id: '/rt-oscillations-1'
       path: '/rt-oscillations-1'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RtOscillations1Route: RtOscillations1Route,
+  RtPBlock1Route: RtPBlock1Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
