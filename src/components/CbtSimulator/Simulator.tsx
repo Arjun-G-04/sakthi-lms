@@ -3,36 +3,46 @@ import { useCallback, useEffect, useState } from "react";
 import { addTestPerformance } from "#/lib/test-performance.functions";
 import { Instructions } from "./Instructions";
 import { MathText } from "./MathText";
-import { oscillationsQuestions } from "./questions";
 import { Scorecard } from "./Scorecard";
 import { SubmitModal } from "./SubmitModal";
+import type { Question, QuestionStatus } from "./types";
 
-type QuestionStatus =
-	| "not_visited"
-	| "not_answered"
-	| "answered"
-	| "marked"
-	| "answered_marked";
+interface CbtSimulatorProps {
+	testName: string;
+	subtitle: string;
+	chaptersCovered: string[];
+	questions: Question[];
+	durationMinutes?: number;
+}
 
-export function Simulator() {
+export function Simulator({
+	testName,
+	subtitle,
+	chaptersCovered,
+	questions,
+	durationMinutes = 60,
+}: CbtSimulatorProps) {
+	const totalDurationSeconds = durationMinutes * 60;
+
 	// Exam states
 	const [currentIdx, setCurrentIdx] = useState(0);
 	const [answers, setAnswers] = useState<Record<number, number>>({});
 	const [status, setStatus] = useState<Record<number, QuestionStatus>>(() => {
 		const initStatus: Record<number, QuestionStatus> = {};
-		for (const q of oscillationsQuestions) {
-			initStatus[q.id] = q.id === 1 ? "not_answered" : "not_visited";
+		for (const q of questions) {
+			initStatus[q.id] =
+				q.id === questions[0]?.id ? "not_answered" : "not_visited";
 		}
 		return initStatus;
 	});
 
-	const [timeLeft, setTimeLeft] = useState(3600); // 60 minutes in seconds
+	const [timeLeft, setTimeLeft] = useState(totalDurationSeconds);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showSubmitModal, setShowSubmitModal] = useState(false);
 	const [isStarted, setIsStarted] = useState(false);
 
-	const currentQuestion = oscillationsQuestions[currentIdx];
+	const currentQuestion = questions[currentIdx];
 
 	// Submit test handler
 	const submitTest = useCallback(async () => {
@@ -41,7 +51,7 @@ export function Simulator() {
 			// Calculate scored marks
 			let correct = 0;
 			let incorrect = 0;
-			for (const q of oscillationsQuestions) {
+			for (const q of questions) {
 				const ans = answers[q.id];
 				if (ans !== undefined) {
 					if (ans === q.correctOption) {
@@ -58,11 +68,11 @@ export function Simulator() {
 			await addTestPerformance({
 				data: {
 					testDate: today,
-					testName: "Oscillations",
-					chaptersCovered: ["Oscillations"],
-					durationMinutes: 60,
-					totalMarks: 240,
-					scoredMarks: Math.max(0, scoredMarks), // NEET score can be negative in theory, but database blocks it, let's clamp it at 0 to be database-safe (0 to 240)
+					testName,
+					chaptersCovered,
+					durationMinutes,
+					totalMarks: questions.length * 4,
+					scoredMarks: Math.max(0, scoredMarks), // Clamp to prevent SQLite schema errors
 					testType: "Subject Test",
 				},
 			});
@@ -71,14 +81,15 @@ export function Simulator() {
 		} catch (error) {
 			console.error("Failed to save mock test performance:", error);
 			alert(
-				"Error submitting exam: " +
-					(error instanceof Error ? error.message : String(error)),
+				`Error submitting exam: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
 			);
 		} finally {
 			setIsSubmitting(false);
 			setShowSubmitModal(false);
 		}
-	}, [answers]);
+	}, [answers, questions, testName, chaptersCovered, durationMinutes]);
 
 	// Countdown Timer Effect
 	useEffect(() => {
@@ -119,12 +130,13 @@ export function Simulator() {
 		setAnswers({});
 		setStatus(() => {
 			const initStatus: Record<number, QuestionStatus> = {};
-			for (const q of oscillationsQuestions) {
-				initStatus[q.id] = q.id === 1 ? "not_answered" : "not_visited";
+			for (const q of questions) {
+				initStatus[q.id] =
+					q.id === questions[0]?.id ? "not_answered" : "not_visited";
 			}
 			return initStatus;
 		});
-		setTimeLeft(3600);
+		setTimeLeft(totalDurationSeconds);
 		setIsSubmitted(false);
 		setIsStarted(false);
 	};
@@ -137,18 +149,22 @@ export function Simulator() {
 	};
 
 	// Navigation actions
-	const selectQuestion = useCallback((idx: number) => {
-		setCurrentIdx(idx);
-		setStatus((prev) => {
-			const qId = oscillationsQuestions[idx].id;
-			if (prev[qId] === "not_visited") {
-				return { ...prev, [qId]: "not_answered" };
-			}
-			return prev;
-		});
-	}, []);
+	const selectQuestion = useCallback(
+		(idx: number) => {
+			setCurrentIdx(idx);
+			setStatus((prev) => {
+				const qId = questions[idx].id;
+				if (prev[qId] === "not_visited") {
+					return { ...prev, [qId]: "not_answered" };
+				}
+				return prev;
+			});
+		},
+		[questions],
+	);
 
 	const handleSaveNext = useCallback(() => {
+		if (!currentQuestion) return;
 		const qId = currentQuestion.id;
 		const answerSelected = answers[qId] !== undefined;
 
@@ -157,12 +173,13 @@ export function Simulator() {
 			[qId]: answerSelected ? "answered" : "not_answered",
 		}));
 
-		if (currentIdx < oscillationsQuestions.length - 1) {
+		if (currentIdx < questions.length - 1) {
 			selectQuestion(currentIdx + 1);
 		}
-	}, [currentIdx, answers, currentQuestion.id, selectQuestion]);
+	}, [currentIdx, answers, currentQuestion, questions.length, selectQuestion]);
 
 	const handleMarkReviewNext = useCallback(() => {
+		if (!currentQuestion) return;
 		const qId = currentQuestion.id;
 		const answerSelected = answers[qId] !== undefined;
 
@@ -171,12 +188,13 @@ export function Simulator() {
 			[qId]: answerSelected ? "answered_marked" : "marked",
 		}));
 
-		if (currentIdx < oscillationsQuestions.length - 1) {
+		if (currentIdx < questions.length - 1) {
 			selectQuestion(currentIdx + 1);
 		}
-	}, [currentIdx, answers, currentQuestion.id, selectQuestion]);
+	}, [currentIdx, answers, currentQuestion, questions.length, selectQuestion]);
 
 	const handleClearResponse = useCallback(() => {
+		if (!currentQuestion) return;
 		const qId = currentQuestion.id;
 		setAnswers((prev) => {
 			const copy = { ...prev };
@@ -187,7 +205,7 @@ export function Simulator() {
 			...prev,
 			[qId]: "not_answered",
 		}));
-	}, [currentQuestion.id]);
+	}, [currentQuestion]);
 
 	const handlePrev = useCallback(() => {
 		if (currentIdx > 0) {
@@ -197,10 +215,11 @@ export function Simulator() {
 
 	const handleSelectOption = useCallback(
 		(optionIdx: number) => {
+			if (!currentQuestion) return;
 			const qId = currentQuestion.id;
 			setAnswers((prev) => ({ ...prev, [qId]: optionIdx }));
 		},
-		[currentQuestion.id],
+		[currentQuestion],
 	);
 
 	// Counting category stats
@@ -217,9 +236,10 @@ export function Simulator() {
 	if (isSubmitted) {
 		return (
 			<Scorecard
-				questions={oscillationsQuestions}
+				title={testName}
+				questions={questions}
 				answers={answers}
-				elapsedTimeSeconds={3600 - timeLeft}
+				elapsedTimeSeconds={totalDurationSeconds - timeLeft}
 				onReset={handleReset}
 			/>
 		);
@@ -228,8 +248,8 @@ export function Simulator() {
 	if (!isStarted) {
 		return (
 			<Instructions
-				title="Oscillations"
-				subtitle="Class 11 Physics | Chapter Assessment"
+				title={testName}
+				subtitle={subtitle}
 				onStart={() => setIsStarted(true)}
 			/>
 		);
@@ -240,7 +260,7 @@ export function Simulator() {
 			{/* Top Bar / Header replicating TCS iON CBT layout */}
 			<div className="flex flex-col gap-3 rounded-2xl border border-[#1a2840]/12 bg-[#2d5a3d]/90 p-4 text-[#fdfaf4] shadow-md sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h2 className="display-title text-2xl font-bold">Oscillations</h2>
+					<h2 className="display-title text-2xl font-bold">{testName}</h2>
 				</div>
 
 				<div className="flex items-center justify-between gap-6 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0">
@@ -249,7 +269,9 @@ export function Simulator() {
 							Time Left
 						</span>
 						<span
-							className={`font-mono text-lg font-black tracking-wider ${timeLeft <= 300 ? "text-[#ff7b6b] animate-pulse" : "text-white"}`}
+							className={`font-mono text-lg font-black tracking-wider ${
+								timeLeft <= 300 ? "text-[#ff7b6b] animate-pulse" : "text-white"
+							}`}
 						>
 							{formatTimer(timeLeft)}
 						</span>
@@ -274,52 +296,56 @@ export function Simulator() {
 					</div>
 
 					{/* Question body */}
-					<div className="flex-1 p-6 space-y-6 overflow-y-auto max-h-[500px]">
-						<p className="body-serif text-sm leading-relaxed text-[#1a2840] whitespace-pre-line">
-							<MathText text={currentQuestion.text} />
-						</p>
+					{currentQuestion && (
+						<div className="flex-1 p-6 space-y-6 overflow-y-auto max-h-[500px]">
+							<p className="body-serif text-sm leading-relaxed text-[#1a2840] whitespace-pre-line">
+								<MathText text={currentQuestion.text} />
+							</p>
 
-						{/* Render SVG diagram if present */}
-						{currentQuestion.svgDiagram && (
-							<div
-								className="my-4 p-4 rounded-xl border border-[#1a2840]/10 bg-white flex items-center justify-center shadow-inner"
-								// biome-ignore lint/security/noDangerouslySetInnerHtml: static question SVGs are trusted
-								dangerouslySetInnerHTML={{ __html: currentQuestion.svgDiagram }}
-							/>
-						)}
+							{/* Render SVG diagram if present */}
+							{currentQuestion.svgDiagram && (
+								<div
+									className="my-4 p-4 rounded-xl border border-[#1a2840]/10 bg-white flex items-center justify-center shadow-inner"
+									// biome-ignore lint/security/noDangerouslySetInnerHtml: static question SVGs are trusted
+									dangerouslySetInnerHTML={{
+										__html: currentQuestion.svgDiagram,
+									}}
+								/>
+							)}
 
-						{/* Options list */}
-						<div className="grid gap-3 mt-4">
-							{currentQuestion.options.map((opt, oIdx) => {
-								const isSelected = answers[currentQuestion.id] === oIdx;
-								return (
-									<button
-										key={opt}
-										type="button"
-										onClick={() => handleSelectOption(oIdx)}
-										className={`flex items-center gap-4 rounded-xl border p-4 text-left transition duration-150 ${
-											isSelected
-												? "border-[#1a2840] bg-[#1a2840]/5 font-semibold text-[#1a2840]"
-												: "border-[#1a2840]/10 bg-white hover:border-[#1a2840]/25 text-[#1a2840]/80"
-										}`}
-									>
-										<span
-											className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold uppercase transition ${
+							{/* Options list */}
+							<div className="grid gap-3 mt-4">
+								{currentQuestion.options.map((opt, oIdx) => {
+									const isSelected = answers[currentQuestion.id] === oIdx;
+									return (
+										<button
+											key={opt}
+											type="button"
+											onClick={() => handleSelectOption(oIdx)}
+											className={`flex items-center gap-4 rounded-xl border p-4 text-left transition duration-150 ${
 												isSelected
-													? "bg-[#1a2840] text-[#fdfaf4] border-[#1a2840]"
-													: "border-[#1a2840]/20 text-[#1a2840]/50"
+													? "border-[#1a2840] bg-[#1a2840]/5 font-semibold text-[#1a2840]"
+													: "border-[#1a2840]/10 bg-white hover:border-[#1a2840]/25 text-[#1a2840]/80"
 											}`}
 										>
-											{String.fromCharCode(65 + oIdx)}
-										</span>
-										<span className="text-xs leading-relaxed">
-											<MathText text={opt} />
-										</span>
-									</button>
-								);
-							})}
+											<span
+												className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold uppercase transition ${
+													isSelected
+														? "bg-[#1a2840] text-[#fdfaf4] border-[#1a2840]"
+														: "border-[#1a2840]/20 text-[#1a2840]/50"
+												}`}
+											>
+												{String.fromCharCode(65 + oIdx)}
+											</span>
+											<span className="text-xs leading-relaxed">
+												<MathText text={opt} />
+											</span>
+										</button>
+									);
+								})}
+							</div>
 						</div>
-					</div>
+					)}
 
 					{/* Bottom Controls */}
 					<div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#1a2840]/8 bg-[#f5eedc] p-4">
@@ -414,7 +440,7 @@ export function Simulator() {
 
 							{/* 60 Questions grid */}
 							<div className="grid grid-cols-5 gap-2 max-h-[300px] overflow-y-auto p-1.5">
-								{oscillationsQuestions.map((q, idx) => {
+								{questions.map((q, idx) => {
 									const isCurrent = currentIdx === idx;
 									const stat = status[q.id];
 
@@ -477,7 +503,7 @@ export function Simulator() {
 					onSubmit={submitTest}
 					isSubmitting={isSubmitting}
 					answeredCount={answeredCount + answeredMarkedCount}
-					totalCount={oscillationsQuestions.length}
+					totalCount={questions.length}
 				/>
 			)}
 		</div>

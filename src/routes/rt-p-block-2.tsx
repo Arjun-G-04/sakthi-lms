@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Simulator } from "#/components/CbtSimulator/Simulator";
-import { oscillationsQuestions } from "#/components/TcsIonSimulator/questions";
+import { pBlock2Questions } from "#/components/PBlock2Simulator/questions";
 
-export const Route = createFileRoute("/rt-oscillations-1")({
+export const Route = createFileRoute("/rt-p-block-2")({
 	head: () => ({
 		links: [
 			{
@@ -29,10 +29,10 @@ function TestPage() {
 				{/* Render simulator only after client mount */}
 				{isMounted ? (
 					<Simulator
-						testName="Oscillations"
-						subtitle="Class 11 Physics | Chapter Assessment"
-						chaptersCovered={["Oscillations"]}
-						questions={oscillationsQuestions}
+						testName="p-block (Test 2)"
+						subtitle="Class 11 Chemistry | Chapter Assessment 2"
+						chaptersCovered={["p-block"]}
+						questions={pBlock2Questions}
 					/>
 				) : (
 					<div className="min-h-[400px] flex flex-col items-center justify-center rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 p-8 text-center shadow-xs">

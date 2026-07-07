@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Simulator } from "#/components/PBlockSimulator/Simulator";
+import { Simulator } from "#/components/CbtSimulator/Simulator";
+import { pBlockQuestions } from "#/components/PBlockSimulator/questions";
 
 export const Route = createFileRoute("/rt-p-block-1")({
 	head: () => ({
@@ -27,7 +28,12 @@ function TestPage() {
 			<div className="mx-auto max-w-[1440px] space-y-4 relative z-10">
 				{/* Render simulator only after client mount */}
 				{isMounted ? (
-					<Simulator />
+					<Simulator
+						testName="p-block"
+						subtitle="Class 11 Chemistry | Chapter Assessment"
+						chaptersCovered={["p-block"]}
+						questions={pBlockQuestions}
+					/>
 				) : (
 					<div className="min-h-[400px] flex flex-col items-center justify-center rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 p-8 text-center shadow-xs">
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-[#b8872a] border-t-transparent" />

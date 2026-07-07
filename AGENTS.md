@@ -1,80 +1,40 @@
-# Agent Development Guide (AGENTS.md)
+# Agent Guide (AGENTS.md)
 
-Welcome! This file acts as the primary developer documentation and entry point for LLM agents working on the **Sakthi LMS - NEET 2027 Tracking App**.
-
----
-
-## 🧭 Project Blueprint & Core Docs
-
-To keep this guide concise, specialized sections are split into independent documents inside the `/docs` folder. Always refer to these specific directories when working on features:
-
-1. **[System Architecture](file:///Users/arjun/Documents/Code/sakthi-lms/docs/architecture.md)**
-   - Tech stack details (TanStack Start, SQLite, Drizzle ORM, Tailwind CSS).
-   - Data flow charts and server functions (`loadChapterBoard`, `updateChapterProgress`).
-2. **[Chapter Tracking & State Model](file:///Users/arjun/Documents/Code/sakthi-lms/docs/chapter-tracking.md)**
-   - Database schema modeling and constraints.
-   - Milestone state maps (Progress States & Status States).
-   - State transition cycling helper rules.
-3. **[UI Components & Premium Styling](file:///Users/arjun/Documents/Code/sakthi-lms/docs/ui-components.md)**
-   - SVG geometry for the Apple Watch segmented progress ring.
-   - Dynamic real-time widgets (`NeetCountdown` timer, `HeroQuote` fetch loader).
-   - Symmetrical vertical centering alignments in table rows.
-4. **[TanStack Start Architecture](file:///Users/arjun/Documents/Code/sakthi-lms/docs/tanstack-start.md)**
-   - Unified routing layouts and isomorphic execution boundaries.
-   - Server Function (`createServerFn`) design patterns and middleware.
-   - Strict client vs server environment variable safety rules.
-5. **[Codebase Review Standards](file:///Users/arjun/Documents/Code/sakthi-lms/docs/review-standards.md)**
-   - Standards for logical, functional, and security audits.
-   - Performance and optimization checking via Vercel React Best Practices.
-   - High-density caveman-review feedback and auto-refactoring flow.
-6. **[Mock Test & CBT Simulator Guidelines](file:///Users/arjun/Documents/Code/sakthi-lms/docs/mock-test-guidelines.md)**
-   - Standards and file structure for generating 60-question mock assessments.
-   - LaTeX mathematical rendering and KaTeX integration rules.
-   - Session locking, timers, and database logging specs.
+## Core Docs
+Refer to documents in docs/:
+1. [Architecture](docs/architecture.md): TanStack Start, SQLite, Drizzle ORM, server functions.
+2. [Chapter Tracking](docs/chapter-tracking.md): DB schema, milestone state/status maps, transitions.
+3. [UI & Styling](docs/ui-components.md): SVG Watch ring, countdown, widgets, vertical alignments.
+4. [TanStack Start](docs/tanstack-start.md): Routing, server functions, environment variables.
+5. [Review Standards](docs/review-standards.md): Code audits, refactoring, Vercel React best practices.
+6. [Mock Test / CBT](docs/mock-test-guidelines.md): 60-question mock CBT spec, KaTeX, session logic.
 
 ---
 
-## 🚀 Quick Start for LLM Agents
+## Non-Negotiable Rules
 
-### 1. Key Working Files
-- **App Routes / Core UI**: [src/routes/index.tsx](file:///Users/arjun/Documents/Code/sakthi-lms/src/routes/index.tsx)
-- **CBT Route**: [src/routes/rt-oscillations-1.tsx](file:///Users/arjun/Documents/Code/sakthi-lms/src/routes/rt-oscillations-1.tsx)
-- **CBT Simulator**: [src/components/TcsIonSimulator/Simulator.tsx](file:///Users/arjun/Documents/Code/sakthi-lms/src/components/TcsIonSimulator/Simulator.tsx)
-- **DB Queries / Actions**: [src/lib/chapter-progress.ts](file:///Users/arjun/Documents/Code/sakthi-lms/src/lib/chapter-progress.ts)
-- **Static Schema Model**: [src/db/schema.ts](file:///Users/arjun/Documents/Code/sakthi-lms/src/db/schema.ts)
-- **Static Definitions**: [src/lib/chapter-catalog.ts](file:///Users/arjun/Documents/Code/sakthi-lms/src/lib/chapter-catalog.ts)
+- Response Style: Always invoke/use the caveman skill: `.agents/skills/caveman/SKILL.md` when responding.
+- Response Header: For all responses, the top response should be "skills: skill1, skill2, etc" where skill1, skill2, refers to the skills utilized in this conversation.
+- File Length Limit: Max 500 lines per file.
+- Mock Test CBT Rules: Mouse-only sessions (no keyboard shortcut listeners). 60-question tests must be split into two files (part1.ts and part2.ts) to stay under 500 lines. Clamp scores to Math.max(0, scoredMarks). Log maximum allowed duration (e.g. 60 mins), not actual elapsed time.
+- Animations: No load-in, fade-in, rise-in, or slide-in animations on page/component load unless explicitly requested.
+- Documentation Standards: All documentation must be written in succinct, efficient language and contain absolutely no emojis.
 
-### 2. Standard CLI Scripts
-Always run these scripts inside the root workspace folder to verify code safety and styling sanity:
+---
 
+## Verification Requirements
+Before submitting any task, run these verification checks:
 ```bash
-# Check TypeScript type safety (pre-flight checks)
+# Check TypeScript compilation and type safety
 npx tsc --noEmit
 
-# Format & Lint checking with Biome
-npx biome check src/routes/index.tsx
+# Lint checking
+pnpm biome lint src/
 
-# Auto-apply Biome format and lint repairs
-npx biome check --write src/routes/index.tsx
+# Format checking
+pnpm biome format src/
 
-# Verify full production build compilation
+# Verify full production build packaging
 pnpm build
 ```
-
----
-
-## ⚠️ Important Rules for Future Agent Iterations
-
-- **Accessibility Standards**: Any new SVG markup must include accessible definitions: `role="img"`, a detailed `aria-label`, and a `<title>` tag to comply with modern lint engines.
-- **Hook Closure Arrays**: Always wrap custom actions inside `useCallback` when referencing them in `useEffect` arrays to prevent unnecessary rendering or infinite loops.
-- **Type Compatibility**: Keep database updates safe by strictly validating fields (`notes`, `exercise`, etc.) against `PROGRESS_STATES` and `STATUS_STATES` type enums before executing update transactions in SQLite.
-- **Server Function Validation**: Always implement explicit, safe parameter validation inside the `.inputValidator` definition of `createServerFn` to sanitize all client RPC payloads before processing.
-- **Environment Variable Isolation**: Keep confidential credentials secure by keeping them prefix-less (`process.env.SECRET`) and accessing them exclusively on the server. Never prefix sensitive database configs with `VITE_`.
-- **Hydration Boundary Safety**: Guard against browser-only APIs (like `window` or `localStorage`) during initial render. Restrict dynamic dates or random utilities to `useEffect` or static formats to prevent hydration mismatches.
-- **File Length Limits**: Ensure no file in the codebase exceeds 500 lines in length to maintain modularity, readability, and ease of auditing.
-- **Automated Codebase Auditing**: When a codebase review or audit is requested, strictly execute the four-phase standard defined in [docs/review-standards.md](file:///Users/arjun/Documents/Code/sakthi-lms/docs/review-standards.md), combining TanStack Start logic/security, Vercel React Best Practices, high-density caveman-review feedback, and immediate refactoring remediation.
-- **Mock Test CBT Rules**: Always design CBT mock simulators (e.g. Waves, Gravitation) to run as mouse-only active sessions (no keyboard shortcut listeners enabled). Data banks containing exactly 60 questions must be split into two files (`part1.ts` and `part2.ts`) to stay under the 500-line limit. Always clamp results to `Math.max(0, scoredMarks)` to prevent negative value database violations, and log the maximum allowed duration (e.g., 60 minutes) instead of actual utilized/elapsed time.
-- **Load/Fade-in Animations**: Unless explicitly asked by the user, do not include load-in, fade-in, rise-in, or slide-in animations on page or component initialization.
-
-
 

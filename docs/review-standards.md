@@ -1,53 +1,67 @@
 # Codebase Review & Refactoring Standards
 
-This document establishes the official review and automated refactoring workflow for agents working on this codebase.
+Official review and automated refactoring workflow.
 
-When the **Review & Audit Section** of `AGENTS.md` is invoked or this file is referenced as an instruction target in developer requests, the following comprehensive four-phase review process must be executed:
+## Review Policies
+- **Code Reviews**: Always use `.agents/skills/thermo-nuclear-code-quality-review` skill (relative path only) when performing or asking for code reviews.
+- **Frontend Code Reviews**: Always use `.agents/skills/vercel-react-best-practices` skill (relative path only) for frontend code reviews.
+- **Accessibility**: SVGs must have role="img", aria-label, and <title> tag.
+- **React Hooks**: Wrap custom actions in useCallback when referenced in useEffect dependency arrays.
+- **DB Type Safety**: Validate fields (notes, exercise) against PROGRESS_STATES and STATUS_STATES before SQLite updates.
+- **Server Functions**: Implement explicit parameter validation using .inputValidator in createServerFn.
+- **Environment Sec**: Keep secrets prefix-less (process.env.SECRET) and server-only. Never prefix DB configs with VITE_.
+- **Hydration Boundary**: Guard browser-only APIs (window, localStorage) in initial render. No dynamic dates during hydration.
 
----
-
-## Phase 1: Architectural & Security Audit (`docs/tanstack-start.md`)
-Audit all routing, API endpoints, server-side modules, and database structures against the principles in **[TanStack Start Architecture](file:///Users/arjun/Documents/Code/sakthi-lms/docs/tanstack-start.md)**:
-- **Server Boundaries**: Verify that native Node/sqlite modules are restricted to `.server.ts` or enclosed strictly within `createServerFn` to prevent client compilation leakage.
-- **Input Security**: Verify that every `createServerFn` enforces explicit `.inputValidator` checks and rejects type or structure anomalies.
-- **Credential Isolation**: Confirm no sensitive environment variables (e.g. `DATABASE_URL`) have a `VITE_` prefix, preventing browser visibility.
-- **SSR & Hydration Integrity**: Audit components for dangerous browser API uses (like raw `window` or local storage access during initial render) that could trigger hydration mismatches.
-- **File Length Modularity**: Verify that no source file exceeds 500 lines. Flag any files exceeding this limit for immediate refactoring into smaller, modular sub-files.
-
-
----
-
-## Phase 2: React Performance Audit (`vercel-react-best-practices`)
-Audit all frontend and component code against the performance rules in the **[Vercel React Best Practices](file:///Users/arjun/Documents/Code/sakthi-lms/.agents/skills/vercel-react-best-practices/SKILL.md)** catalog:
-- **Critical Waterfalls**: Ensure loaders do not block needlessly, and dynamic components are rendered asynchronously using streaming `<Suspense>` and `<Await>` blocks if appropriate.
-- **Re-render Bloat**: Identify state subscriptions inside callbacks that can be deferred or converted to refs, check that non-primitive default props are hoisted, and ensure callbacks are wrapped in `useCallback` or `useMemo` where appropriate to maintain reference equality.
-- **JS & DOM Efficiency**: Verify that O(1) lookups are used for intensive iteration loops, and that RegExp or mapping setups are hoisted outside execution cycles.
+When code review is requested, execute this six-phase process:
 
 ---
 
-## Phase 3: High-Density Feedback Generation (`caveman-review`)
-Synthesize findings into high-density code review comments following the **[Caveman Review Style Guide](file:///Users/arjun/Documents/Code/sakthi-lms/.agents/skills/caveman-review/SKILL.md)**:
-- Terse and actionable format: `<file>:L<line>: <severity>: <problem>. <fix>.`
-- Severity prefixes must be applied:
-  - `🔴 bug:` — broken logic or security flaw (e.g., missing parameter validation).
-  - `🟡 risk:` — fragile state, potential race condition, or hydration mismatch hazard.
-  - `🔵 nit:` — code formatting, unused import, or micro-optimization.
-- No general commentary or conversational fluff. Every comment must pinpoint a single actionable change.
+## Phase 1: Architectural & Security Audit (docs/tanstack-start.md)
+Audit code against docs/tanstack-start.md:
+- **Server Boundaries**: Native Node/sqlite modules must reside in `.server.ts` or inside `createServerFn`.
+- **Input Security**: Verify every `createServerFn` enforces `.inputValidator`.
+- **Credential Isolation**: DB secrets must not have a `VITE_` prefix.
+- **SSR Safety**: No raw browser API (window, localStorage) during initial render.
+- **File Length**: Max 500 lines per file. Split if exceeded.
 
 ---
 
-## Phase 4: Automated Refactoring & Sanity Verification
-After generating the review comments, execute the following remediation cycle:
-1. **Refactor & Apply**: Systematically rewrite the codebase to repair all identified `🔴 bug` and `🟡 risk` issues, and as many `🔵 nit` issues as possible.
-2. **TypeScript Validation**: Execute `npx tsc --noEmit` to verify 100% compilation correctness.
-3. **Lint & Style Alignment**: Run `npx biome check --write` to enforce uniform formatting.
-4. **Production Build**: Execute `pnpm build` to compile client, server, and Nitro targets.
+## Phase 2: React Performance Audit (vercel-react-best-practices)
+Audit frontend against `.agents/skills/vercel-react-best-practices/SKILL.md`:
+- **Waterfalls**: Avoid blocking loaders; stream via Suspense/Await.
+- **Re-render Bloat**: Defer state reads in callbacks, hoist non-primitive default props, wrap stable callbacks in `useCallback`.
+- **DOM Efficiency**: Ensure O(1) lookups in loops, hoist RegExp/maps.
 
 ---
 
-## Phase 5: Developer Notification Report
-Once complete, notify the user in smart caveman format with:
-- **Review Summary**: Which components and rules were reviewed.
-- **Audit Findings**: The high-density caveman-review feedback log.
-- **Remediation Report**: What specific files were refactored and how they were fixed.
-- **Sanity Verification Status**: The outcome of compilation, linting, and build commands.
+## Phase 3: Code Quality & Maintainability Audit (thermo-nuclear-code-quality-review)
+Audit codebase with and proceed with `.agents/skills/thermo-nuclear-code-quality-review/SKILL.md`:
+
+---
+
+## Phase 4: High-Density Feedback Generation (caveman)
+Synthesize findings into high-density comments using `.agents/skills/caveman/SKILL.md`:
+- Format: `<file>:L<line>: <severity>: <problem>. <fix>.`
+- Severities:
+  - `bug:` broken logic / security flaw.
+  - `risk:` fragile state / hydration mismatch / maintainability smell.
+  - `nit:` formatting / micro-optimization.
+- No conversational fluff. Actionable points only.
+
+---
+
+## Phase 5: Refactoring & Verification
+1. **Apply Fixes**: Rewrite code to resolve bugs, risks, and nits.
+2. **Type Check**: Run `npx tsc --noEmit`.
+3. **Lint**: Run `pnpm biome lint src/`.
+4. **Format**: Run `pnpm biome format src/`.
+5. **Build**: Run `pnpm build`.
+
+---
+
+## Phase 6: Audit Report
+Notify user in caveman format:
+- **Summary**: Components and rules reviewed.
+- **Findings**: The high-density review log.
+- **Remediation**: Actions taken.
+- **Status**: Results of typecheck, linting, formatting, and build.

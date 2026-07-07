@@ -7,13 +7,10 @@ This document defines the architecture, standard patterns, and implementation ch
 ## 📐 1. Architecture & File Splitting (500-Line Limit)
 To strictly adhere to the codebase rule that **no source file exceeds 500 lines**, all mock tests with exactly 60 questions must split their data and layout components. 
 
-For a new test (e.g., "Waves"), create a dedicated folder under `src/components/` (e.g., `src/components/WavesSimulator/`):
+For a new test, we use the unified components from `src/components/CbtSimulator/` instead of duplicating simulator/scorecard/math-text UI code. Only the question bank needs to be created in a dedicated folder under `src/components/` (e.g., `src/components/WavesSimulator/`):
 
 ```
 src/components/WavesSimulator/
-├── MathText.tsx          # Copy from TcsIonSimulator (KaTeX text parser)
-├── Simulator.tsx         # Active exam dashboard layout (< 500 lines)
-├── Scorecard.tsx         # NEET score calculator & reviews (< 500 lines)
 └── questions/            # Split question bank
     ├── part1.ts          # Questions 1–30 (exports wavesQuestionsPart1)
     ├── part2.ts          # Questions 31–60 (exports wavesQuestionsPart2)
@@ -21,6 +18,7 @@ src/components/WavesSimulator/
 ```
 
 ### Data Interface for Questions:
+Located in `src/components/CbtSimulator/types.ts`:
 ```typescript
 export interface Question {
 	id: number;
@@ -35,7 +33,7 @@ export interface Question {
 ---
 
 ## 🧮 2. LaTeX Math Rendering
-* **Parser Component**: Always use the `<MathText text={...} />` component. It parses inline `$ ... $` and display `$$ ... $$` math blocks and renders them using `katex.renderToString`. This avoids hydration drift and ensures fast client-side rendering.
+* **Parser Component**: Always use the `<MathText text={...} />` component from `src/components/CbtSimulator/MathText.tsx`. It parses inline `$ ... $` and display `$$ ... $$` math blocks and renders them using `katex.renderToString`. This avoids hydration drift and ensures fast client-side rendering.
 * **Biome Suppression**: Inside `MathText.tsx`, suppress biome lint rules for `dangerouslySetInnerHTML` and `noArrayIndexKey` using a single space-separated comment line preceding the element:
   ```tsx
   // biome-ignore lint/suspicious/noArrayIndexKey lint/security/noDangerouslySetInnerHtml: KaTeX static rendering is safe
@@ -115,7 +113,8 @@ To prevent hydration mismatches from browser-only timers and API hooks, route co
 ```typescript
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Simulator } from "#/components/WavesSimulator/Simulator";
+import { Simulator } from "#/components/CbtSimulator/Simulator";
+import { wavesQuestions } from "#/components/WavesSimulator/questions";
 
 export const Route = createFileRoute("/rt-waves-1")({
 	head: () => ({
@@ -140,7 +139,12 @@ function TestPage() {
 		<main className="relative min-h-screen text-[#1a2840] py-6 px-4">
 			<div className="mx-auto max-w-[1440px] space-y-4 relative z-10">
 				{isMounted ? (
-					<Simulator />
+					<Simulator
+						testName="Waves"
+						subtitle="Class 11 Physics | Chapter Assessment"
+						chaptersCovered={["Waves"]}
+						questions={wavesQuestions}
+					/>
 				) : (
 					<div className="min-h-[400px] flex flex-col items-center justify-center rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 p-8 text-center">
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-[#b8872a] border-t-transparent" />
@@ -153,19 +157,4 @@ function TestPage() {
 		</main>
 	);
 }
-```
-
----
-
-## 🛠️ 7. Verification Checklist
-Before submitting the task, run these validation checks inside the root workspace folder:
-```bash
-# Check TypeScript compilation and type safety
-npx tsc --noEmit
-
-# Format & Lint checking
-npx biome check src/
-
-# Verify full production build packaging
-pnpm build
 ```

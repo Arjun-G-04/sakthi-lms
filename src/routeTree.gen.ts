@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RtPBlock2RouteImport } from './routes/rt-p-block-2'
 import { Route as RtPBlock1RouteImport } from './routes/rt-p-block-1'
 import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RtPBlock2Route = RtPBlock2RouteImport.update({
+  id: '/rt-p-block-2',
+  path: '/rt-p-block-2',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RtPBlock1Route = RtPBlock1RouteImport.update({
   id: '/rt-p-block-1',
   path: '/rt-p-block-1',
@@ -33,34 +39,50 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
+  '/rt-p-block-2': typeof RtPBlock2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
+  '/rt-p-block-2': typeof RtPBlock2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
+  '/rt-p-block-2': typeof RtPBlock2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/rt-oscillations-1' | '/rt-p-block-1'
+  fullPaths: '/' | '/rt-oscillations-1' | '/rt-p-block-1' | '/rt-p-block-2'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/rt-oscillations-1' | '/rt-p-block-1'
-  id: '__root__' | '/' | '/rt-oscillations-1' | '/rt-p-block-1'
+  to: '/' | '/rt-oscillations-1' | '/rt-p-block-1' | '/rt-p-block-2'
+  id:
+    | '__root__'
+    | '/'
+    | '/rt-oscillations-1'
+    | '/rt-p-block-1'
+    | '/rt-p-block-2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RtOscillations1Route: typeof RtOscillations1Route
   RtPBlock1Route: typeof RtPBlock1Route
+  RtPBlock2Route: typeof RtPBlock2Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/rt-p-block-2': {
+      id: '/rt-p-block-2'
+      path: '/rt-p-block-2'
+      fullPath: '/rt-p-block-2'
+      preLoaderRoute: typeof RtPBlock2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rt-p-block-1': {
       id: '/rt-p-block-1'
       path: '/rt-p-block-1'
@@ -89,6 +111,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RtOscillations1Route: RtOscillations1Route,
   RtPBlock1Route: RtPBlock1Route,
+  RtPBlock2Route: RtPBlock2Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,9 +1,10 @@
 import { Check, Info, RotateCcw, X } from "lucide-react";
 import { useState } from "react";
 import { MathText } from "./MathText";
-import type { Question } from "./questions";
+import type { Question } from "./types";
 
 interface ScorecardProps {
+	title: string;
 	questions: Question[];
 	answers: Record<number, number>;
 	elapsedTimeSeconds: number;
@@ -11,6 +12,7 @@ interface ScorecardProps {
 }
 
 export function Scorecard({
+	title,
 	questions,
 	answers,
 	elapsedTimeSeconds,
@@ -82,7 +84,7 @@ export function Scorecard({
 								Mock Test Result
 							</span>
 							<h2 className="display-title mt-1 text-3xl font-bold text-[#1a2840]">
-								p-block
+								{title}
 							</h2>
 							<p className="body-serif mt-1 text-xs text-[#1a2840]/60">
 								Completed in {formatElapsedTime(elapsedTimeSeconds)} | Total
