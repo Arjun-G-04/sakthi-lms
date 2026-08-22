@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RtPhotosynthesis1RouteImport } from './routes/rt-photosynthesis-1'
 import { Route as RtPBlock2RouteImport } from './routes/rt-p-block-2'
 import { Route as RtPBlock1RouteImport } from './routes/rt-p-block-1'
 import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RtPhotosynthesis1Route = RtPhotosynthesis1RouteImport.update({
+  id: '/rt-photosynthesis-1',
+  path: '/rt-photosynthesis-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RtPBlock2Route = RtPBlock2RouteImport.update({
   id: '/rt-p-block-2',
   path: '/rt-p-block-2',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
   '/rt-p-block-2': typeof RtPBlock2Route
+  '/rt-photosynthesis-1': typeof RtPhotosynthesis1Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
   '/rt-p-block-2': typeof RtPBlock2Route
+  '/rt-photosynthesis-1': typeof RtPhotosynthesis1Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,18 +61,30 @@ export interface FileRoutesById {
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
   '/rt-p-block-2': typeof RtPBlock2Route
+  '/rt-photosynthesis-1': typeof RtPhotosynthesis1Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/rt-oscillations-1' | '/rt-p-block-1' | '/rt-p-block-2'
+  fullPaths:
+    | '/'
+    | '/rt-oscillations-1'
+    | '/rt-p-block-1'
+    | '/rt-p-block-2'
+    | '/rt-photosynthesis-1'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/rt-oscillations-1' | '/rt-p-block-1' | '/rt-p-block-2'
+  to:
+    | '/'
+    | '/rt-oscillations-1'
+    | '/rt-p-block-1'
+    | '/rt-p-block-2'
+    | '/rt-photosynthesis-1'
   id:
     | '__root__'
     | '/'
     | '/rt-oscillations-1'
     | '/rt-p-block-1'
     | '/rt-p-block-2'
+    | '/rt-photosynthesis-1'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -72,10 +92,18 @@ export interface RootRouteChildren {
   RtOscillations1Route: typeof RtOscillations1Route
   RtPBlock1Route: typeof RtPBlock1Route
   RtPBlock2Route: typeof RtPBlock2Route
+  RtPhotosynthesis1Route: typeof RtPhotosynthesis1Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/rt-photosynthesis-1': {
+      id: '/rt-photosynthesis-1'
+      path: '/rt-photosynthesis-1'
+      fullPath: '/rt-photosynthesis-1'
+      preLoaderRoute: typeof RtPhotosynthesis1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rt-p-block-2': {
       id: '/rt-p-block-2'
       path: '/rt-p-block-2'
@@ -112,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   RtOscillations1Route: RtOscillations1Route,
   RtPBlock1Route: RtPBlock1Route,
   RtPBlock2Route: RtPBlock2Route,
+  RtPhotosynthesis1Route: RtPhotosynthesis1Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
