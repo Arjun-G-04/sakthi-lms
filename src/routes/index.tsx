@@ -14,6 +14,7 @@ import {
 import { SectionRingButton } from "#/components/ChapterTracker/SectionRingButton";
 import { HeroQuote } from "#/components/HeroQuote";
 import { MetricCard } from "#/components/MetricCard";
+import { MilestoneTimeline } from "#/components/MilestoneTimeline/MilestoneTimeline";
 import { NeetCountdown } from "#/components/NeetCountdown";
 import { TestDashboard } from "#/components/TestDashboard/TestDashboard";
 import type { TestType } from "#/components/TestDashboard/utils";
@@ -28,23 +29,30 @@ import {
 	loadChapterBoard,
 	updateChapterProgress,
 } from "#/lib/chapter-progress.functions";
+import { loadMilestones, type Milestone } from "#/lib/milestone.functions";
 import { loadTestPerformances } from "#/lib/test-performance.functions";
 
 export const Route = createFileRoute("/")({
 	loader: async () => {
-		const [board, tests] = await Promise.all([
+		const [board, tests, milestones] = await Promise.all([
 			loadChapterBoard(),
 			loadTestPerformances(),
+			loadMilestones(),
 		]);
-		return { board, tests };
+		return { board, tests, milestones };
 	},
 	component: Home,
 });
 
 function Home() {
-	const { board: initialBoard, tests: initialTests } = Route.useLoaderData();
+	const {
+		board: initialBoard,
+		tests: initialTests,
+		milestones: initialMilestones,
+	} = Route.useLoaderData();
 	const [board, setBoard] = useState<ChapterBoardSection[]>(initialBoard);
 	const [tests, setTests] = useState<TestType[]>(initialTests);
+	const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
 	const [savingKey, setSavingKey] = useState<string | null>(null);
 	const [selectedSectionKey, setSelectedSectionKey] = useState(
 		sectionKey(initialBoard[0]),
@@ -56,7 +64,8 @@ function Home() {
 	useEffect(() => {
 		setBoard(initialBoard);
 		setTests(initialTests);
-	}, [initialBoard, initialTests]);
+		setMilestones(initialMilestones);
+	}, [initialBoard, initialTests, initialMilestones]);
 
 	useEffect(() => {
 		if (!selectedSectionKey && initialBoard[0]) {
@@ -266,6 +275,12 @@ function Home() {
 						</div>
 					</div>
 				</section>
+
+				{/* Pinned Timeline Milestones */}
+				<MilestoneTimeline
+					milestones={milestones}
+					setMilestones={setMilestones}
+				/>
 
 				{/* Tab Switcher */}
 				<div className="flex p-1 rounded-[16px] border border-[#1a2840]/12 bg-[#fdfaf4]/90 self-start shadow-[0_2px_8px_rgba(26,40,64,0.08)] backdrop-blur-sm">

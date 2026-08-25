@@ -46,3 +46,17 @@ export const todos = sqliteTable("todos", {
 
 export type TodoRow = typeof todos.$inferSelect;
 export type NewTodoRow = typeof todos.$inferInsert;
+
+export const milestones = sqliteTable("milestones", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	title: text("title").notNull(),
+	targetDate: text("target_date").notNull(), // 'YYYY-MM-DD'
+	category: text("category").notNull().default("test"), // 'test' | 'checkpoint' | 'revision' | 'exam'
+	description: text("description"), // optional notes / chapters
+	isPinned: integer("is_pinned", { mode: "boolean" }).notNull().default(true),
+	status: text("status").notNull().default("upcoming"), // 'upcoming' | 'completed'
+	createdAt: integer("created_at").notNull().default(sql`(unixepoch())`),
+});
+
+export type MilestoneRow = typeof milestones.$inferSelect;
+export type NewMilestoneRow = typeof milestones.$inferInsert;
