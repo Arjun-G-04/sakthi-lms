@@ -3,9 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { addTestPerformance } from "#/lib/test-performance.functions";
 import { Instructions } from "./Instructions";
 import { MathText } from "./MathText";
+import { QuestionPalette } from "./QuestionPalette";
 import { Scorecard } from "./Scorecard";
 import { SubmitModal } from "./SubmitModal";
-import type { Question, QuestionStatus } from "./types";
+import type { Question, QuestionStatus, SectionInfo } from "./types";
 
 interface CbtSimulatorProps {
 	testName: string;
@@ -13,6 +14,8 @@ interface CbtSimulatorProps {
 	chaptersCovered: string[];
 	questions: Question[];
 	durationMinutes?: number;
+	sections?: SectionInfo[];
+	testType?: string;
 }
 
 export function Simulator({
@@ -21,6 +24,8 @@ export function Simulator({
 	chaptersCovered,
 	questions,
 	durationMinutes = 60,
+	sections,
+	testType = "Subject Test",
 }: CbtSimulatorProps) {
 	const totalDurationSeconds = durationMinutes * 60;
 
@@ -41,6 +46,16 @@ export function Simulator({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showSubmitModal, setShowSubmitModal] = useState(false);
 	const [isStarted, setIsStarted] = useState(false);
+
+	const activeSectionIdx =
+		sections && sections.length > 0
+			? Math.max(
+					0,
+					sections.findIndex(
+						(s) => currentIdx >= s.startIndex && currentIdx <= s.endIndex,
+					),
+				)
+			: 0;
 
 	const currentQuestion = questions[currentIdx];
 
@@ -73,7 +88,7 @@ export function Simulator({
 					durationMinutes,
 					totalMarks: questions.length * 4,
 					scoredMarks: Math.max(0, scoredMarks), // Clamp to prevent SQLite schema errors
-					testType: "Subject Test",
+					testType,
 				},
 			});
 
@@ -89,7 +104,14 @@ export function Simulator({
 			setIsSubmitting(false);
 			setShowSubmitModal(false);
 		}
-	}, [answers, questions, testName, chaptersCovered, durationMinutes]);
+	}, [
+		answers,
+		questions,
+		testName,
+		chaptersCovered,
+		durationMinutes,
+		testType,
+	]);
 
 	// Countdown Timer Effect
 	useEffect(() => {
@@ -161,6 +183,15 @@ export function Simulator({
 			});
 		},
 		[questions],
+	);
+
+	const handleSelectSection = useCallback(
+		(secIdx: number) => {
+			if (sections?.[secIdx]) {
+				selectQuestion(sections[secIdx].startIndex);
+			}
+		},
+		[sections, selectQuestion],
 	);
 
 	const handleSaveNext = useCallback(() => {
@@ -241,6 +272,7 @@ export function Simulator({
 				answers={answers}
 				elapsedTimeSeconds={totalDurationSeconds - timeLeft}
 				onReset={handleReset}
+				sections={sections}
 			/>
 		);
 	}
@@ -250,26 +282,35 @@ export function Simulator({
 			<Instructions
 				title={testName}
 				subtitle={subtitle}
+				totalQuestions={questions.length}
+				durationMinutes={durationMinutes}
 				onStart={() => setIsStarted(true)}
 			/>
 		);
 	}
 
 	return (
-		<div className="flex flex-col gap-5 min-h-[calc(100vh-100px)] text-[#1a2840] animate-fade-in relative z-10">
+		<div className="fixed inset-0 z-50 flex flex-col gap-2.5 bg-[#fdfaf4] p-3 text-[#1a2840] overflow-hidden select-none">
 			{/* Top Bar / Header replicating TCS iON CBT layout */}
-			<div className="flex flex-col gap-3 rounded-2xl border border-[#1a2840]/12 bg-[#2d5a3d]/90 p-4 text-[#fdfaf4] shadow-md sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<h2 className="display-title text-2xl font-bold">{testName}</h2>
+			<div className="shrink-0 flex items-center justify-between rounded-xl border border-[#1a2840]/12 bg-[#2d5a3d] px-4 py-2 text-[#fdfaf4] shadow-xs">
+				<div className="flex items-center gap-3 min-w-0">
+					<h2 className="display-title text-base sm:text-lg font-bold truncate">
+						{testName}
+					</h2>
+					{subtitle && (
+						<span className="hidden md:inline-block text-[11px] text-white/70 truncate max-w-md">
+							| {subtitle}
+						</span>
+					)}
 				</div>
 
-				<div className="flex items-center justify-between gap-6 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0">
-					<div className="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-2 border border-white/10">
+				<div className="flex items-center gap-3 shrink-0">
+					<div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1 border border-white/10">
 						<span className="text-[10px] font-bold uppercase tracking-wider text-white/70">
 							Time Left
 						</span>
 						<span
-							className={`font-mono text-lg font-black tracking-wider ${
+							className={`font-mono text-sm sm:text-base font-black tracking-wider ${
 								timeLeft <= 300 ? "text-[#ff7b6b] animate-pulse" : "text-white"
 							}`}
 						>
@@ -280,13 +321,13 @@ export function Simulator({
 			</div>
 
 			{/* Main Grid layout */}
-			<div className="grid gap-5 lg:grid-cols-[1fr_340px] flex-1">
+			<div className="grid gap-3 lg:grid-cols-[1fr_310px] flex-1 min-h-0 overflow-hidden">
 				{/* Left Column: Active Question box & Bottom Controls */}
-				<div className="flex flex-col rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 shadow-sm overflow-hidden min-h-[480px]">
+				<div className="flex flex-col rounded-xl border border-[#1a2840]/12 bg-white shadow-xs overflow-hidden h-full min-h-0">
 					{/* Question Box Header */}
-					<div className="flex items-center justify-between border-b border-[#1a2840]/8 bg-[#f5eedc] px-5 py-3.5">
-						<div className="flex items-center gap-3">
-							<span className="rounded bg-[#1a2840] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#fdfaf4]">
+					<div className="shrink-0 flex items-center justify-between border-b border-[#1a2840]/8 bg-[#f5eedc] px-4 py-2">
+						<div className="flex items-center gap-2.5">
+							<span className="rounded bg-[#1a2840] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#fdfaf4]">
 								Question {currentIdx + 1}
 							</span>
 							<span className="text-[10px] font-bold uppercase tracking-wider text-[#1a2840]/60">
@@ -297,15 +338,15 @@ export function Simulator({
 
 					{/* Question body */}
 					{currentQuestion && (
-						<div className="flex-1 p-6 space-y-6 overflow-y-auto max-h-[500px]">
-							<p className="body-serif text-sm leading-relaxed text-[#1a2840] whitespace-pre-line">
+						<div className="flex-1 min-h-0 p-4 space-y-4 overflow-y-auto">
+							<p className="body-serif text-xs sm:text-sm leading-relaxed text-[#1a2840] whitespace-pre-line">
 								<MathText text={currentQuestion.text} />
 							</p>
 
 							{/* Render SVG diagram if present */}
 							{currentQuestion.svgDiagram && (
 								<div
-									className="my-4 p-4 rounded-xl border border-[#1a2840]/10 bg-white flex items-center justify-center shadow-inner"
+									className="my-3 p-3 rounded-lg border border-[#1a2840]/10 bg-[#fdfaf4] flex items-center justify-center shadow-inner"
 									// biome-ignore lint/security/noDangerouslySetInnerHtml: static question SVGs are trusted
 									dangerouslySetInnerHTML={{
 										__html: currentQuestion.svgDiagram,
@@ -314,7 +355,7 @@ export function Simulator({
 							)}
 
 							{/* Options list */}
-							<div className="grid gap-3 mt-4">
+							<div className="grid gap-2 mt-3">
 								{currentQuestion.options.map((opt, oIdx) => {
 									const isSelected = answers[currentQuestion.id] === oIdx;
 									return (
@@ -322,14 +363,14 @@ export function Simulator({
 											key={opt}
 											type="button"
 											onClick={() => handleSelectOption(oIdx)}
-											className={`flex items-center gap-4 rounded-xl border p-4 text-left transition duration-150 ${
+											className={`flex items-center gap-3 rounded-lg border p-2.5 text-left transition duration-150 ${
 												isSelected
 													? "border-[#1a2840] bg-[#1a2840]/5 font-semibold text-[#1a2840]"
-													: "border-[#1a2840]/10 bg-white hover:border-[#1a2840]/25 text-[#1a2840]/80"
+													: "border-[#1a2840]/10 bg-[#fdfaf4]/60 hover:border-[#1a2840]/25 text-[#1a2840]/80"
 											}`}
 										>
 											<span
-												className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold uppercase transition ${
+												className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold uppercase transition ${
 													isSelected
 														? "bg-[#1a2840] text-[#fdfaf4] border-[#1a2840]"
 														: "border-[#1a2840]/20 text-[#1a2840]/50"
@@ -337,7 +378,7 @@ export function Simulator({
 											>
 												{String.fromCharCode(65 + oIdx)}
 											</span>
-											<span className="text-xs leading-relaxed">
+											<span className="text-xs leading-normal">
 												<MathText text={opt} />
 											</span>
 										</button>
@@ -348,19 +389,19 @@ export function Simulator({
 					)}
 
 					{/* Bottom Controls */}
-					<div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#1a2840]/8 bg-[#f5eedc] p-4">
+					<div className="shrink-0 flex flex-wrap items-center justify-between gap-2 border-t border-[#1a2840]/8 bg-[#f5eedc] px-3.5 py-2">
 						<div className="flex items-center gap-2">
 							<button
 								type="button"
 								onClick={handleMarkReviewNext}
-								className="rounded-xl border border-[#1a2840]/20 bg-white px-4 py-2.5 text-2xs font-bold uppercase tracking-wider text-[#1a2840]/70 hover:bg-[#1a2840]/5 transition duration-150"
+								className="rounded-lg border border-[#1a2840]/20 bg-white px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#1a2840]/70 hover:bg-[#1a2840]/5 transition duration-150"
 							>
-								Mark for Review & Next
+								Mark for Review &amp; Next
 							</button>
 							<button
 								type="button"
 								onClick={handleClearResponse}
-								className="rounded-xl border border-[#1a2840]/20 bg-white px-4 py-2.5 text-2xs font-bold uppercase tracking-wider text-[#1a2840]/70 hover:bg-[#1a2840]/5 transition duration-150"
+								className="rounded-lg border border-[#1a2840]/20 bg-white px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#1a2840]/70 hover:bg-[#1a2840]/5 transition duration-150"
 							>
 								Clear Response
 							</button>
@@ -372,128 +413,38 @@ export function Simulator({
 								onClick={handlePrev}
 								disabled={currentIdx === 0}
 								aria-label="Previous question"
-								className="rounded-xl border border-[#1a2840]/10 bg-white px-3.5 py-2.5 text-xs text-[#1a2840] disabled:opacity-30 hover:bg-[#1a2840]/5 transition duration-150"
+								className="rounded-lg border border-[#1a2840]/10 bg-white px-2.5 py-1.5 text-xs text-[#1a2840] disabled:opacity-30 hover:bg-[#1a2840]/5 transition duration-150"
 							>
-								<ArrowLeft className="h-4 w-4" />
+								<ArrowLeft className="h-3.5 w-3.5" />
 							</button>
 							<button
 								type="button"
 								onClick={handleSaveNext}
-								className="flex items-center gap-2 rounded-xl bg-[#1a2840] px-5 py-2.5 text-2xs font-black uppercase tracking-wider text-[#fdfaf4] hover:bg-[#1a2840]/85 transition duration-150 shadow-[0_2px_6px_rgba(26,40,64,0.15)]"
+								className="flex items-center gap-1.5 rounded-lg bg-[#1a2840] px-3.5 py-1.5 text-[11px] font-black uppercase tracking-wider text-[#fdfaf4] hover:bg-[#1a2840]/85 transition duration-150 shadow-xs"
 							>
-								Save & Next
-								<ArrowRight className="h-4 w-4" />
+								Save &amp; Next
+								<ArrowRight className="h-3.5 w-3.5" />
 							</button>
 						</div>
 					</div>
 				</div>
 
 				{/* Right Column: Question Palette & Candidate Dashboard */}
-				<aside className="flex flex-col gap-4">
-					{/* Status Legend Section */}
-					<div className="rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 p-4 shadow-sm space-y-3">
-						<p className="text-[10px] font-bold uppercase tracking-widest text-[#1a2840]/50 border-b border-[#1a2840]/8 pb-1.5">
-							Palette Status Indicators
-						</p>
-
-						<div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-[10px] font-medium text-[#1a2840]/80">
-							<div className="flex items-center gap-2">
-								<span className="flex h-5 w-5 items-center justify-center rounded-sm bg-emerald-600 text-[9px] font-black text-white">
-									1
-								</span>
-								<span>Answered ({answeredCount})</span>
-							</div>
-							<div className="flex items-center gap-2">
-								<span className="flex h-5 w-5 items-center justify-center rounded-sm bg-rose-600 text-[9px] font-black text-white">
-									1
-								</span>
-								<span>Not Answered ({notAnsweredCount})</span>
-							</div>
-							<div className="flex items-center gap-2">
-								<span className="flex h-5 w-5 items-center justify-center rounded-sm bg-indigo-600 text-[9px] font-black text-white rounded-full">
-									1
-								</span>
-								<span>For Review ({markedCount})</span>
-							</div>
-							<div className="flex items-center gap-2">
-								<span className="relative flex h-5 w-5 items-center justify-center rounded-sm bg-indigo-600 text-[9px] font-black text-white rounded-full">
-									1
-									<span className="absolute -bottom-1 -right-1 block h-2 w-2 rounded-full bg-emerald-500 border border-white" />
-								</span>
-								<span>Ans & Review ({answeredMarkedCount})</span>
-							</div>
-							<div className="flex items-center gap-2 col-span-2">
-								<span className="flex h-5 w-5 items-center justify-center rounded-sm border border-[#1a2840]/15 bg-white text-[9px] text-[#1a2840]/40">
-									1
-								</span>
-								<span>Not Visited ({notVisitedCount})</span>
-							</div>
-						</div>
-					</div>
-
-					{/* Question Grid Palette */}
-					<div className="flex-1 rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 p-4 shadow-sm flex flex-col justify-between">
-						<div>
-							<p className="text-[10px] font-bold uppercase tracking-widest text-[#1a2840]/50 border-b border-[#1a2840]/8 pb-1.5 mb-3.5">
-								Question Palette
-							</p>
-
-							{/* 60 Questions grid */}
-							<div className="grid grid-cols-5 gap-2 max-h-[300px] overflow-y-auto p-1.5">
-								{questions.map((q, idx) => {
-									const isCurrent = currentIdx === idx;
-									const stat = status[q.id];
-
-									let btnStyle =
-										"border-[#1a2840]/15 bg-white text-[#1a2840]/50 hover:bg-[#1a2840]/5";
-									let indicatorDot = false;
-
-									if (stat === "answered") {
-										btnStyle =
-											"bg-emerald-600 border-emerald-600 text-white font-bold";
-									} else if (stat === "not_answered") {
-										btnStyle =
-											"bg-rose-600 border-rose-600 text-white font-bold";
-									} else if (stat === "marked") {
-										btnStyle =
-											"bg-indigo-600 border-indigo-600 text-white rounded-full font-bold";
-									} else if (stat === "answered_marked") {
-										btnStyle =
-											"bg-indigo-600 border-indigo-600 text-white rounded-full font-bold relative";
-										indicatorDot = true;
-									}
-
-									return (
-										<button
-											key={q.id}
-											type="button"
-											onClick={() => selectQuestion(idx)}
-											className={`flex h-9 w-full items-center justify-center rounded-sm border text-xs font-bold transition ${btnStyle} ${
-												isCurrent ? "ring-2 ring-offset-2 ring-[#b8872a]" : ""
-											}`}
-										>
-											{q.id}
-											{indicatorDot && (
-												<span className="absolute -bottom-0.5 -right-0.5 block h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-white" />
-											)}
-										</button>
-									);
-								})}
-							</div>
-						</div>
-
-						{/* Submit Exam Button */}
-						<div className="border-t border-[#1a2840]/8 pt-4 mt-4">
-							<button
-								type="button"
-								onClick={() => setShowSubmitModal(true)}
-								className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-emerald-700 transition shadow-[0_2px_8px_rgba(16,185,129,0.25)]"
-							>
-								Submit Mock Test
-							</button>
-						</div>
-					</div>
-				</aside>
+				<QuestionPalette
+					questions={questions}
+					currentIdx={currentIdx}
+					status={status}
+					sections={sections}
+					activeSectionIdx={activeSectionIdx}
+					onSelectSection={handleSelectSection}
+					onSelectQuestion={selectQuestion}
+					onSubmitClick={() => setShowSubmitModal(true)}
+					answeredCount={answeredCount}
+					notAnsweredCount={notAnsweredCount}
+					markedCount={markedCount}
+					answeredMarkedCount={answeredMarkedCount}
+					notVisitedCount={notVisitedCount}
+				/>
 			</div>
 
 			{/* Submission Confirmation Modal */}

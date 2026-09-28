@@ -13,6 +13,7 @@ import { Route as RtPhotosynthesis1RouteImport } from './routes/rt-photosynthesi
 import { Route as RtPBlock2RouteImport } from './routes/rt-p-block-2'
 import { Route as RtPBlock1RouteImport } from './routes/rt-p-block-1'
 import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
+import { Route as AiatsMock1RouteImport } from './routes/aiats-mock-1'
 import { Route as IndexRouteImport } from './routes/index'
 
 const RtPhotosynthesis1Route = RtPhotosynthesis1RouteImport.update({
@@ -35,6 +36,11 @@ const RtOscillations1Route = RtOscillations1RouteImport.update({
   path: '/rt-oscillations-1',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiatsMock1Route = AiatsMock1RouteImport.update({
+  id: '/aiats-mock-1',
+  path: '/aiats-mock-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aiats-mock-1': typeof AiatsMock1Route
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
   '/rt-p-block-2': typeof RtPBlock2Route
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aiats-mock-1': typeof AiatsMock1Route
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
   '/rt-p-block-2': typeof RtPBlock2Route
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aiats-mock-1': typeof AiatsMock1Route
   '/rt-oscillations-1': typeof RtOscillations1Route
   '/rt-p-block-1': typeof RtPBlock1Route
   '/rt-p-block-2': typeof RtPBlock2Route
@@ -67,6 +76,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aiats-mock-1'
     | '/rt-oscillations-1'
     | '/rt-p-block-1'
     | '/rt-p-block-2'
@@ -74,6 +84,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aiats-mock-1'
     | '/rt-oscillations-1'
     | '/rt-p-block-1'
     | '/rt-p-block-2'
@@ -81,6 +92,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/aiats-mock-1'
     | '/rt-oscillations-1'
     | '/rt-p-block-1'
     | '/rt-p-block-2'
@@ -89,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiatsMock1Route: typeof AiatsMock1Route
   RtOscillations1Route: typeof RtOscillations1Route
   RtPBlock1Route: typeof RtPBlock1Route
   RtPBlock2Route: typeof RtPBlock2Route
@@ -125,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RtOscillations1RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aiats-mock-1': {
+      id: '/aiats-mock-1'
+      path: '/aiats-mock-1'
+      fullPath: '/aiats-mock-1'
+      preLoaderRoute: typeof AiatsMock1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -137,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiatsMock1Route: AiatsMock1Route,
   RtOscillations1Route: RtOscillations1Route,
   RtPBlock1Route: RtPBlock1Route,
   RtPBlock2Route: RtPBlock2Route,

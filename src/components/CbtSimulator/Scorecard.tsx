@@ -1,7 +1,7 @@
 import { Check, Info, RotateCcw, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MathText } from "./MathText";
-import type { Question } from "./types";
+import type { Question, SectionInfo } from "./types";
 
 interface ScorecardProps {
 	title: string;
@@ -9,6 +9,7 @@ interface ScorecardProps {
 	answers: Record<number, number>;
 	elapsedTimeSeconds: number;
 	onReset: () => void;
+	sections?: SectionInfo[];
 }
 
 export function Scorecard({
@@ -17,6 +18,7 @@ export function Scorecard({
 	answers,
 	elapsedTimeSeconds,
 	onReset,
+	sections,
 }: ScorecardProps) {
 	const [filter, setFilter] = useState<
 		"all" | "correct" | "incorrect" | "unattempted"
@@ -72,8 +74,30 @@ export function Scorecard({
 		return "border-[#ff7b6b] bg-[#ff7b6b]/10 text-[#ff7b6b]";
 	};
 
+	const sectionStats = useMemo(() => {
+		if (!sections || sections.length === 0) return [];
+		return sections.map((sec) => {
+			const secQuestions = questions.slice(sec.startIndex, sec.endIndex + 1);
+			let secCorrect = 0;
+			let secIncorrect = 0;
+			for (const q of secQuestions) {
+				const ans = answers[q.id];
+				if (ans === q.correctOption) secCorrect += 1;
+				else if (ans !== undefined) secIncorrect += 1;
+			}
+			return {
+				name: sec.name,
+				score: secCorrect * 4 - secIncorrect * 1,
+				totalMarks: secQuestions.length * 4,
+				correct: secCorrect,
+				incorrect: secIncorrect,
+				unattempted: secQuestions.length - secCorrect - secIncorrect,
+			};
+		});
+	}, [sections, questions, answers]);
+
 	return (
-		<div className="w-full space-y-6 animate-fade-in">
+		<div className="w-full space-y-6">
 			{/* Top scorecard statistics */}
 			<div className="overflow-hidden rounded-[24px] border-2 border-[#1a2840]/12 bg-[#fdfaf4]/90 shadow-[0_4px_16px_rgba(26,40,64,0.08)] backdrop-blur-sm">
 				<div className="h-[4px] w-full bg-gradient-to-r from-[#ff7b6b] via-[#b8872a] to-[#2d5a3d]" />
@@ -166,6 +190,36 @@ export function Scorecard({
 							<p className="mt-1 text-[10px] text-[#1a2840]/40">0 Marks</p>
 						</div>
 					</div>
+
+					{sectionStats.length > 0 && (
+						<div className="mt-8 border-t border-[#1a2840]/10 pt-6">
+							<p className="text-[10px] font-black uppercase tracking-widest text-[#1a2840]/60 mb-3">
+								Subject-wise Performance
+							</p>
+							<div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+								{sectionStats.map((stat) => (
+									<div
+										key={stat.name}
+										className="rounded-xl border border-[#1a2840]/12 bg-[#f5eedc]/50 p-3.5 text-center"
+									>
+										<p className="text-[11px] font-bold uppercase tracking-wider text-[#b8872a]">
+											{stat.name}
+										</p>
+										<p className="display-title mt-1 text-2xl font-black text-[#1a2840]">
+											{stat.score}{" "}
+											<span className="text-xs font-normal text-[#1a2840]/50">
+												/ {stat.totalMarks}
+											</span>
+										</p>
+										<p className="mt-1 text-[10px] text-[#1a2840]/60">
+											+{stat.correct} | -{stat.incorrect} | {stat.unattempted}{" "}
+											unattempted
+										</p>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 

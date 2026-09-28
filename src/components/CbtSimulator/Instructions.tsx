@@ -2,11 +2,26 @@ interface InstructionsProps {
 	onStart: () => void;
 	title: string;
 	subtitle?: string;
+	totalQuestions?: number;
+	durationMinutes?: number;
 }
 
-export function Instructions({ onStart, title, subtitle }: InstructionsProps) {
+export function Instructions({
+	onStart,
+	title,
+	subtitle,
+	totalQuestions = 60,
+	durationMinutes = 60,
+}: InstructionsProps) {
+	const hours = Math.floor(durationMinutes / 60);
+	const remainingMins = durationMinutes % 60;
+	const timeDisplay =
+		hours > 0
+			? `${durationMinutes} minutes (${hours} hr${hours > 1 ? "s" : ""}${remainingMins > 0 ? ` ${remainingMins} min` : ""})`
+			: `${durationMinutes} minutes`;
+
 	return (
-		<div className="mx-auto max-w-2xl rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 p-8 text-center shadow-md animate-fade-in relative z-10 space-y-6">
+		<div className="mx-auto max-w-2xl rounded-2xl border border-[#1a2840]/12 bg-[#fdfaf4]/90 p-8 text-center shadow-md relative z-10 space-y-6">
 			<div>
 				<span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#b8872a]">
 					Test Session Initialisation
@@ -26,15 +41,15 @@ export function Instructions({ onStart, title, subtitle }: InstructionsProps) {
 			{/* Instructions list */}
 			<div className="text-left space-y-3 text-xs leading-relaxed text-[#1a2840]/80 bg-[#f5eedc]/55 p-5 rounded-xl border border-[#1a2840]/8">
 				<h4 className="font-bold text-[#1a2840] uppercase tracking-wider text-[10px] mb-2">
-					Session Rules & Parameters:
+					Session Rules &amp; Parameters:
 				</h4>
 				<ul className="list-disc pl-5 space-y-2 body-serif">
 					<li>
-						<strong>Total Questions</strong>: 60 multiple choice questions
-						(MCQ).
+						<strong>Total Questions</strong>: {totalQuestions} multiple choice
+						questions (MCQ).
 					</li>
 					<li>
-						<strong>Time Limit</strong>: 60 minutes countdown. The test will
+						<strong>Time Limit</strong>: {timeDisplay} countdown. The test will
 						auto-submit when the timer expires.
 					</li>
 					<li>

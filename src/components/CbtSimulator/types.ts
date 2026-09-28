@@ -13,3 +13,9 @@ export type QuestionStatus =
 	| "answered"
 	| "marked"
 	| "answered_marked";
+
+export interface SectionInfo {
+	name: string;
+	startIndex: number;
+	endIndex: number;
+}
