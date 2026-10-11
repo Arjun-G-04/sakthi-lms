@@ -9,37 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RtPhotosynthesis1RouteImport } from './routes/rt-photosynthesis-1'
-import { Route as RtPBlock2RouteImport } from './routes/rt-p-block-2'
-import { Route as RtPBlock1RouteImport } from './routes/rt-p-block-1'
-import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
-import { Route as RtLawsOfMotion1RouteImport } from './routes/rt-laws-of-motion-1'
-import { Route as AiatsMock1RouteImport } from './routes/aiats-mock-1'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiatsMock1RouteImport } from './routes/aiats-mock-1'
+import { Route as RtLawsOfMotion1RouteImport } from './routes/rt-laws-of-motion-1'
+import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
+import { Route as RtPBlock1RouteImport } from './routes/rt-p-block-1'
+import { Route as RtPBlock2RouteImport } from './routes/rt-p-block-2'
+import { Route as RtPhotosynthesis1RouteImport } from './routes/rt-photosynthesis-1'
 
-const RtPhotosynthesis1Route = RtPhotosynthesis1RouteImport.update({
-  id: '/rt-photosynthesis-1',
-  path: '/rt-photosynthesis-1',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RtPBlock2Route = RtPBlock2RouteImport.update({
-  id: '/rt-p-block-2',
-  path: '/rt-p-block-2',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RtPBlock1Route = RtPBlock1RouteImport.update({
-  id: '/rt-p-block-1',
-  path: '/rt-p-block-1',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RtOscillations1Route = RtOscillations1RouteImport.update({
-  id: '/rt-oscillations-1',
-  path: '/rt-oscillations-1',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RtLawsOfMotion1Route = RtLawsOfMotion1RouteImport.update({
-  id: '/rt-laws-of-motion-1',
-  path: '/rt-laws-of-motion-1',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiatsMock1Route = AiatsMock1RouteImport.update({
@@ -47,9 +27,29 @@ const AiatsMock1Route = AiatsMock1RouteImport.update({
   path: '/aiats-mock-1',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const RtLawsOfMotion1Route = RtLawsOfMotion1RouteImport.update({
+  id: '/rt-laws-of-motion-1',
+  path: '/rt-laws-of-motion-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RtOscillations1Route = RtOscillations1RouteImport.update({
+  id: '/rt-oscillations-1',
+  path: '/rt-oscillations-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RtPBlock1Route = RtPBlock1RouteImport.update({
+  id: '/rt-p-block-1',
+  path: '/rt-p-block-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RtPBlock2Route = RtPBlock2RouteImport.update({
+  id: '/rt-p-block-2',
+  path: '/rt-p-block-2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RtPhotosynthesis1Route = RtPhotosynthesis1RouteImport.update({
+  id: '/rt-photosynthesis-1',
+  path: '/rt-photosynthesis-1',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -123,39 +123,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/rt-photosynthesis-1': {
-      id: '/rt-photosynthesis-1'
-      path: '/rt-photosynthesis-1'
-      fullPath: '/rt-photosynthesis-1'
-      preLoaderRoute: typeof RtPhotosynthesis1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rt-p-block-2': {
-      id: '/rt-p-block-2'
-      path: '/rt-p-block-2'
-      fullPath: '/rt-p-block-2'
-      preLoaderRoute: typeof RtPBlock2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rt-p-block-1': {
-      id: '/rt-p-block-1'
-      path: '/rt-p-block-1'
-      fullPath: '/rt-p-block-1'
-      preLoaderRoute: typeof RtPBlock1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rt-oscillations-1': {
-      id: '/rt-oscillations-1'
-      path: '/rt-oscillations-1'
-      fullPath: '/rt-oscillations-1'
-      preLoaderRoute: typeof RtOscillations1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rt-laws-of-motion-1': {
-      id: '/rt-laws-of-motion-1'
-      path: '/rt-laws-of-motion-1'
-      fullPath: '/rt-laws-of-motion-1'
-      preLoaderRoute: typeof RtLawsOfMotion1RouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/aiats-mock-1': {
@@ -165,11 +137,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiatsMock1RouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/rt-laws-of-motion-1': {
+      id: '/rt-laws-of-motion-1'
+      path: '/rt-laws-of-motion-1'
+      fullPath: '/rt-laws-of-motion-1'
+      preLoaderRoute: typeof RtLawsOfMotion1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rt-oscillations-1': {
+      id: '/rt-oscillations-1'
+      path: '/rt-oscillations-1'
+      fullPath: '/rt-oscillations-1'
+      preLoaderRoute: typeof RtOscillations1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rt-p-block-1': {
+      id: '/rt-p-block-1'
+      path: '/rt-p-block-1'
+      fullPath: '/rt-p-block-1'
+      preLoaderRoute: typeof RtPBlock1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rt-p-block-2': {
+      id: '/rt-p-block-2'
+      path: '/rt-p-block-2'
+      fullPath: '/rt-p-block-2'
+      preLoaderRoute: typeof RtPBlock2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rt-photosynthesis-1': {
+      id: '/rt-photosynthesis-1'
+      path: '/rt-photosynthesis-1'
+      fullPath: '/rt-photosynthesis-1'
+      preLoaderRoute: typeof RtPhotosynthesis1RouteImport
       parentRoute: typeof rootRouteImport
     }
   }
