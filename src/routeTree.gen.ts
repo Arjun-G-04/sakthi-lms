@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiatsMock1RouteImport } from './routes/aiats-mock-1'
+import { Route as IatMock1RouteImport } from './routes/iat-mock-1'
 import { Route as RtBasicConceptsAtom1RouteImport } from './routes/rt-basic-concepts-atom-1'
 import { Route as RtLawsOfMotion1RouteImport } from './routes/rt-laws-of-motion-1'
 import { Route as RtOscillations1RouteImport } from './routes/rt-oscillations-1'
@@ -26,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const AiatsMock1Route = AiatsMock1RouteImport.update({
   id: '/aiats-mock-1',
   path: '/aiats-mock-1',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IatMock1Route = IatMock1RouteImport.update({
+  id: '/iat-mock-1',
+  path: '/iat-mock-1',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RtBasicConceptsAtom1Route = RtBasicConceptsAtom1RouteImport.update({
@@ -62,6 +68,7 @@ const RtPhotosynthesis1Route = RtPhotosynthesis1RouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aiats-mock-1': typeof AiatsMock1Route
+  '/iat-mock-1': typeof IatMock1Route
   '/rt-basic-concepts-atom-1': typeof RtBasicConceptsAtom1Route
   '/rt-laws-of-motion-1': typeof RtLawsOfMotion1Route
   '/rt-oscillations-1': typeof RtOscillations1Route
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aiats-mock-1': typeof AiatsMock1Route
+  '/iat-mock-1': typeof IatMock1Route
   '/rt-basic-concepts-atom-1': typeof RtBasicConceptsAtom1Route
   '/rt-laws-of-motion-1': typeof RtLawsOfMotion1Route
   '/rt-oscillations-1': typeof RtOscillations1Route
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/aiats-mock-1': typeof AiatsMock1Route
+  '/iat-mock-1': typeof IatMock1Route
   '/rt-basic-concepts-atom-1': typeof RtBasicConceptsAtom1Route
   '/rt-laws-of-motion-1': typeof RtLawsOfMotion1Route
   '/rt-oscillations-1': typeof RtOscillations1Route
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/aiats-mock-1'
+    | '/iat-mock-1'
     | '/rt-basic-concepts-atom-1'
     | '/rt-laws-of-motion-1'
     | '/rt-oscillations-1'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/aiats-mock-1'
+    | '/iat-mock-1'
     | '/rt-basic-concepts-atom-1'
     | '/rt-laws-of-motion-1'
     | '/rt-oscillations-1'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/aiats-mock-1'
+    | '/iat-mock-1'
     | '/rt-basic-concepts-atom-1'
     | '/rt-laws-of-motion-1'
     | '/rt-oscillations-1'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiatsMock1Route: typeof AiatsMock1Route
+  IatMock1Route: typeof IatMock1Route
   RtBasicConceptsAtom1Route: typeof RtBasicConceptsAtom1Route
   RtLawsOfMotion1Route: typeof RtLawsOfMotion1Route
   RtOscillations1Route: typeof RtOscillations1Route
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/aiats-mock-1'
       fullPath: '/aiats-mock-1'
       preLoaderRoute: typeof AiatsMock1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/iat-mock-1': {
+      id: '/iat-mock-1'
+      path: '/iat-mock-1'
+      fullPath: '/iat-mock-1'
+      preLoaderRoute: typeof IatMock1RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rt-basic-concepts-atom-1': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiatsMock1Route: AiatsMock1Route,
+  IatMock1Route: IatMock1Route,
   RtBasicConceptsAtom1Route: RtBasicConceptsAtom1Route,
   RtLawsOfMotion1Route: RtLawsOfMotion1Route,
   RtOscillations1Route: RtOscillations1Route,
