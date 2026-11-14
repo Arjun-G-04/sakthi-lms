@@ -12,6 +12,7 @@ import {
 	RingMeter,
 } from "#/components/ChapterTracker/RingMeter";
 import { SectionRingButton } from "#/components/ChapterTracker/SectionRingButton";
+import { DailyRoutineModule } from "#/components/DailyRoutine/DailyRoutineModule";
 import { HeroQuote } from "#/components/HeroQuote";
 import { MetricCard } from "#/components/MetricCard";
 import { MilestoneTimeline } from "#/components/MilestoneTimeline/MilestoneTimeline";
@@ -57,9 +58,9 @@ function Home() {
 	const [selectedSectionKey, setSelectedSectionKey] = useState(
 		sectionKey(initialBoard[0]),
 	);
-	const [activeTab, setActiveTab] = useState<"tracker" | "tests" | "todos">(
-		"tracker",
-	);
+	const [activeTab, setActiveTab] = useState<
+		"tracker" | "tests" | "todos" | "routine"
+	>("tracker");
 
 	useEffect(() => {
 		setBoard(initialBoard);
@@ -317,6 +318,17 @@ function Home() {
 					>
 						Weekly Planner
 					</button>
+					<button
+						type="button"
+						onClick={() => setActiveTab("routine")}
+						className={`rounded-[12px] px-6 py-2.5 text-xs font-bold uppercase tracking-[0.24em] transition-all duration-300 ${
+							activeTab === "routine"
+								? "bg-[#1a2840] text-[#fdfaf4] shadow-[0_2px_8px_rgba(26,40,64,0.25)]"
+								: "text-[#1a2840]/50 hover:text-[#1a2840]"
+						}`}
+					>
+						Daily Routine
+					</button>
 				</div>
 
 				{activeTab === "tracker" && (
@@ -332,6 +344,7 @@ function Home() {
 					<TestDashboard tests={tests} setTests={setTests} />
 				)}
 				{activeTab === "todos" && <WeeklyTodo />}
+				{activeTab === "routine" && <DailyRoutineModule />}
 			</div>
 		</main>
 	);
